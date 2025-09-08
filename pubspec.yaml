@@ -1,0 +1,35 @@
+name: vitrine
+description: Shop and device monitor app built with Flutter, Riverpod and DummyJSON.
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.9.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  cached_network_image: ^3.4.1
+  cupertino_icons: ^1.0.8
+  dio: ^5.11.1
+  flutter_riverpod: ^3.3.2
+  flutter_secure_storage: ^10.3.4
+  go_router: ^17.2.3
+  google_fonts: ^8.1.0
+  intl: ^0.20.2
+  local_auth: ^3.0.1
+  shared_preferences: ^2.5.5
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_launcher_icons: ^0.14.4
+  flutter_lints: ^5.0.0
+  mocktail: ^1.0.5
+
+flutter:
+  uses-material-design: true
+  generate: true
