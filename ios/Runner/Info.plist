@@ -4,6 +4,8 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Vitrine uses Face ID to sign you in without typing your password.</string>
 	<key>CFBundleDisplayName</key>
 	<string>Vitrine</string>
 	<key>CFBundleExecutable</key>
