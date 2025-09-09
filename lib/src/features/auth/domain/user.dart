@@ -45,10 +45,12 @@ class User {
   }
 
   static String? _formatAddress(Map<dynamic, dynamic> a) {
-    final parts = [a['address'], a['city'], a['state'], a['country']]
-        .whereType<String>()
-        .where((p) => p.isNotEmpty)
-        .toList();
+    final parts = [
+      a['address'],
+      a['city'],
+      a['state'],
+      a['country'],
+    ].whereType<String>().where((p) => p.isNotEmpty).toList();
     return parts.isEmpty ? null : parts.join(', ');
   }
 }
@@ -78,10 +80,10 @@ class SignUpRequest {
   final String password;
 
   Map<String, dynamic> toJson() => {
-        'firstName': firstName,
-        'lastName': lastName,
-        'email': email,
-        'username': username,
-        'password': password,
-      };
+    'firstName': firstName,
+    'lastName': lastName,
+    'email': email,
+    'username': username,
+    'password': password,
+  };
 }

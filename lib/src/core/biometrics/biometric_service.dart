@@ -56,8 +56,8 @@ class LocalBiometricService implements BiometricService {
       final kind = types.contains(BiometricType.face)
           ? BiometricKind.face
           : types.contains(BiometricType.fingerprint)
-              ? BiometricKind.fingerprint
-              : BiometricKind.generic;
+          ? BiometricKind.fingerprint
+          : BiometricKind.generic;
       return BiometricSupport(kind, enrolled: enrolled);
     } on LocalAuthException {
       return BiometricSupport.unavailable;
@@ -68,11 +68,7 @@ class LocalBiometricService implements BiometricService {
   Future<void> authenticate(String reason) async {
     final bool ok;
     try {
-      ok = await _auth.authenticate(
-        localizedReason: reason,
-        biometricOnly: true,
-        persistAcrossBackgrounding: true,
-      );
+      ok = await _auth.authenticate(localizedReason: reason, biometricOnly: true, persistAcrossBackgrounding: true);
     } on LocalAuthException catch (e) {
       throw BiometricException(mapFailure(e.code));
     }
@@ -85,12 +81,11 @@ class LocalBiometricService implements BiometricService {
       LocalAuthExceptionCode.userCanceled ||
       LocalAuthExceptionCode.systemCanceled ||
       LocalAuthExceptionCode.timeout ||
-      LocalAuthExceptionCode.userRequestedFallback =>
-        BiometricFailure.canceled,
-      LocalAuthExceptionCode.noBiometricsEnrolled || LocalAuthExceptionCode.noCredentialsSet => BiometricFailure.notEnrolled,
+      LocalAuthExceptionCode.userRequestedFallback => BiometricFailure.canceled,
+      LocalAuthExceptionCode.noBiometricsEnrolled ||
+      LocalAuthExceptionCode.noCredentialsSet => BiometricFailure.notEnrolled,
       LocalAuthExceptionCode.noBiometricHardware ||
-      LocalAuthExceptionCode.biometricHardwareTemporarilyUnavailable =>
-        BiometricFailure.notAvailable,
+      LocalAuthExceptionCode.biometricHardwareTemporarilyUnavailable => BiometricFailure.notAvailable,
       LocalAuthExceptionCode.temporaryLockout || LocalAuthExceptionCode.biometricLockout => BiometricFailure.lockedOut,
       _ => BiometricFailure.failed,
     };

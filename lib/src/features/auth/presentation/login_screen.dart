@@ -201,10 +201,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
                           Text(l10n.newHere, style: theme.textTheme.bodyMedium),
-                          TextButton(
-                            onPressed: () => context.push(Routes.signUp),
-                            child: Text(l10n.createAccountLink),
-                          ),
+                          TextButton(onPressed: () => context.push(Routes.signUp), child: Text(l10n.createAccountLink)),
                         ],
                       ),
                     ],
@@ -233,10 +230,7 @@ class _DemoHint extends StatelessWidget {
     final p = context.palette;
     return Container(
       padding: const EdgeInsets.fromLTRB(14, 6, 6, 6),
-      decoration: BoxDecoration(
-        color: p.surfaceMuted,
-        borderRadius: BorderRadius.circular(Corners.input),
-      ),
+      decoration: BoxDecoration(color: p.surfaceMuted, borderRadius: BorderRadius.circular(Corners.input)),
       child: Row(
         children: [
           Icon(Icons.key_outlined, size: 18, color: p.inkSoft),

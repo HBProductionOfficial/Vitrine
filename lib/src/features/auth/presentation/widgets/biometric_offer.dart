@@ -36,10 +36,7 @@ class _BiometricOfferState extends ConsumerState<BiometricOffer> {
     final l10n = AppLocalizations.of(context);
     final controller = ref.read(authControllerProvider.notifier);
 
-    final accepted = await showAppSheet<bool>(
-      context,
-      builder: (context) => _OfferSheet(kind: auth.biometricKind),
-    );
+    final accepted = await showAppSheet<bool>(context, builder: (context) => _OfferSheet(kind: auth.biometricKind));
     if (!mounted) return;
     if (accepted ?? false) {
       try {

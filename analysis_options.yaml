@@ -13,3 +13,6 @@ linter:
     sort_child_properties_last: true
     unawaited_futures: true
     avoid_print: true
+
+formatter:
+  page_width: 120

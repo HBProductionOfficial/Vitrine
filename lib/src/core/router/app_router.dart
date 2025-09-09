@@ -40,18 +40,18 @@ final routerProvider = Provider<GoRouter>((ref) {
       StatefulShellRoute.indexedStack(
         builder: (context, state, shell) => BiometricOffer(child: HomeShell(shell: shell)),
         branches: [
-          StatefulShellBranch(routes: [
-            GoRoute(path: Routes.shop, builder: (_, _) => const _Placeholder('Shop')),
-          ]),
-          StatefulShellBranch(routes: [
-            GoRoute(path: Routes.devices, builder: (_, _) => const DevicesScreen()),
-          ]),
-          StatefulShellBranch(routes: [
-            GoRoute(path: Routes.cart, builder: (_, _) => const _Placeholder('Cart')),
-          ]),
-          StatefulShellBranch(routes: [
-            GoRoute(path: Routes.profile, builder: (_, _) => const _Placeholder('Profile', canSignOut: true)),
-          ]),
+          StatefulShellBranch(
+            routes: [GoRoute(path: Routes.shop, builder: (_, _) => const _Placeholder('Shop'))],
+          ),
+          StatefulShellBranch(
+            routes: [GoRoute(path: Routes.devices, builder: (_, _) => const DevicesScreen())],
+          ),
+          StatefulShellBranch(
+            routes: [GoRoute(path: Routes.cart, builder: (_, _) => const _Placeholder('Cart'))],
+          ),
+          StatefulShellBranch(
+            routes: [GoRoute(path: Routes.profile, builder: (_, _) => const _Placeholder('Profile', canSignOut: true))],
+          ),
         ],
       ),
     ],

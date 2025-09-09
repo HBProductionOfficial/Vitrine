@@ -50,7 +50,9 @@ class RestfulDevicesRepository implements DevicesRepository {
 
   @override
   Future<Device> update(String id, String name, Map<String, Object?> data) async {
-    final response = await _call(() => _dio.put<Map<String, dynamic>>('/objects/$id', data: {'name': name, 'data': data}));
+    final response = await _call(
+      () => _dio.put<Map<String, dynamic>>('/objects/$id', data: {'name': name, 'data': data}),
+    );
     return Device.fromJson(response, createdByUser: true);
   }
 

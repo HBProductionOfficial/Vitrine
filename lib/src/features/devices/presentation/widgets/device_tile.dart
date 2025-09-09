@@ -53,10 +53,7 @@ class DeviceTile extends StatelessWidget {
                   Container(
                     constraints: const BoxConstraints(minWidth: 44),
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: p.surfaceMuted,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
+                    decoration: BoxDecoration(color: p.surfaceMuted, borderRadius: BorderRadius.circular(6)),
                     child: Text(
                       device.id.length > 6 ? '#${device.id.substring(device.id.length - 4)}' : device.id,
                       textAlign: TextAlign.center,
@@ -66,7 +63,12 @@ class DeviceTile extends StatelessWidget {
                   ),
                   const SizedBox(width: Insets.md),
                   Expanded(
-                    child: Text(device.name, style: theme.textTheme.titleSmall, maxLines: 2, overflow: TextOverflow.ellipsis),
+                    child: Text(
+                      device.name,
+                      style: theme.textTheme.titleSmall,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                   if (updated)
                     Semantics(
@@ -96,7 +98,9 @@ class DeviceTile extends StatelessWidget {
             duration: Motion.base,
             curve: Motion.move,
             alignment: Alignment.topCenter,
-            child: expanded ? _Details(device: device, telemetry: telemetry, onEdit: onEdit, onDelete: onDelete) : const SizedBox(width: double.infinity),
+            child: expanded
+                ? _Details(device: device, telemetry: telemetry, onEdit: onEdit, onDelete: onDelete)
+                : const SizedBox(width: double.infinity),
           ),
         ],
       ),
@@ -134,9 +138,18 @@ class _Details extends StatelessWidget {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(flex: 2, child: Text(entry.key, style: theme.textTheme.bodyMedium?.copyWith(color: p.inkFaint))),
+                    Expanded(
+                      flex: 2,
+                      child: Text(entry.key, style: theme.textTheme.bodyMedium?.copyWith(color: p.inkFaint)),
+                    ),
                     const SizedBox(width: Insets.md),
-                    Expanded(flex: 3, child: Text(Device.formatValue(entry.value), style: theme.textTheme.bodyMedium?.copyWith(color: p.ink))),
+                    Expanded(
+                      flex: 3,
+                      child: Text(
+                        Device.formatValue(entry.value),
+                        style: theme.textTheme.bodyMedium?.copyWith(color: p.ink),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -154,7 +167,11 @@ class _Details extends StatelessWidget {
                 Icon(Icons.person_outline_rounded, size: 16, color: p.inkFaint),
                 const SizedBox(width: 6),
                 Expanded(child: Text(l10n.yourDevice, style: theme.textTheme.bodySmall)),
-                TextButton.icon(onPressed: onEdit, icon: const Icon(Icons.edit_outlined, size: 18), label: Text(l10n.edit)),
+                TextButton.icon(
+                  onPressed: onEdit,
+                  icon: const Icon(Icons.edit_outlined, size: 18),
+                  label: Text(l10n.edit),
+                ),
                 TextButton.icon(
                   onPressed: onDelete,
                   style: TextButton.styleFrom(foregroundColor: p.danger),
@@ -180,7 +197,12 @@ class _TelemetryGrid extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final readings = [
       (Icons.battery_5_bar_rounded, l10n.batteryLevel, '${telemetry.batteryLevel}%', telemetry.batteryLevel as Object),
-      (Icons.thermostat_rounded, l10n.temperature, '${telemetry.temperature.toStringAsFixed(1)} °C', telemetry.temperature),
+      (
+        Icons.thermostat_rounded,
+        l10n.temperature,
+        '${telemetry.temperature.toStringAsFixed(1)} °C',
+        telemetry.temperature,
+      ),
       (Icons.memory_rounded, l10n.cpuLoad, '${telemetry.cpuLoad}%', telemetry.cpuLoad),
       (Icons.wifi_rounded, l10n.wifiSignal, '${telemetry.wifiSignal} dBm', telemetry.wifiSignal),
     ];
@@ -207,7 +229,13 @@ class _TelemetryGrid extends StatelessWidget {
                           children: [
                             Icon(icon, size: 16, color: context.palette.inkFaint),
                             const SizedBox(width: 6),
-                            Flexible(child: Text(label, style: Theme.of(context).textTheme.bodySmall, overflow: TextOverflow.ellipsis)),
+                            Flexible(
+                              child: Text(
+                                label,
+                                style: Theme.of(context).textTheme.bodySmall,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
                           ],
                         ),
                         const SizedBox(height: 4),

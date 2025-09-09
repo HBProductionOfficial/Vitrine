@@ -42,11 +42,7 @@ class PrimaryButton extends StatelessWidget {
           );
     return SizedBox(
       width: double.infinity,
-      child: FilledButton(
-        style: style,
-        onPressed: loading ? null : onPressed,
-        child: content,
-      ),
+      child: FilledButton(style: style, onPressed: loading ? null : onPressed, child: content),
     );
   }
 }

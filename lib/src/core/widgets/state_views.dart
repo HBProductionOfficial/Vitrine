@@ -7,14 +7,7 @@ import '../design/tokens.dart';
 /// Centered message for empty and error screens. [action] is the one thing
 /// the user can do to fix it.
 class MessageView extends StatelessWidget {
-  const MessageView({
-    super.key,
-    required this.icon,
-    required this.title,
-    this.message,
-    this.action,
-    this.tone,
-  });
+  const MessageView({super.key, required this.icon, required this.title, this.message, this.action, this.tone});
 
   final IconData icon;
   final String title;

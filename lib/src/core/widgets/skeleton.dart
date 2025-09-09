@@ -61,10 +61,7 @@ class SkeletonBox extends StatelessWidget {
     return Container(
       width: width,
       height: height,
-      decoration: BoxDecoration(
-        color: context.palette.surfaceMuted,
-        borderRadius: BorderRadius.circular(radius),
-      ),
+      decoration: BoxDecoration(color: context.palette.surfaceMuted, borderRadius: BorderRadius.circular(radius)),
     );
   }
 }

@@ -88,7 +88,12 @@ class DevicesController extends Notifier<DevicesState> {
         for (final d in result.devices)
           if (liveDeviceIds.contains(d.id)) d.id: state.telemetry[d.id] ?? _simulator.initial(),
       };
-      state = state.copyWith(devices: result.devices, fromCache: result.fromCache, loading: false, telemetry: telemetry);
+      state = state.copyWith(
+        devices: result.devices,
+        fromCache: result.fromCache,
+        loading: false,
+        telemetry: telemetry,
+      );
     } catch (e) {
       if (ref.mounted) state = state.copyWith(loading: false, error: e);
     }
@@ -130,10 +135,7 @@ class DevicesController extends Notifier<DevicesState> {
 
   Future<void> delete(String id) async {
     await ref.read(devicesRepositoryProvider).delete(id);
-    state = state.copyWith(
-      devices: state.devices.where((d) => d.id != id).toList(),
-      collapse: state.expandedId == id,
-    );
+    state = state.copyWith(devices: state.devices.where((d) => d.id != id).toList(), collapse: state.expandedId == id);
   }
 }
 

@@ -55,13 +55,17 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
 
     setState(() => _submitting = true);
     try {
-      await ref.read(authRepositoryProvider).signUp(SignUpRequest(
-            firstName: _firstName.text.trim(),
-            lastName: _lastName.text.trim(),
-            email: _email.text.trim(),
-            username: _username.text.trim(),
-            password: _password.text,
-          ));
+      await ref
+          .read(authRepositoryProvider)
+          .signUp(
+            SignUpRequest(
+              firstName: _firstName.text.trim(),
+              lastName: _lastName.text.trim(),
+              email: _email.text.trim(),
+              username: _username.text.trim(),
+              password: _password.text,
+            ),
+          );
       if (mounted) await _showCreated();
     } catch (e) {
       if (mounted) setState(() => _error = e);

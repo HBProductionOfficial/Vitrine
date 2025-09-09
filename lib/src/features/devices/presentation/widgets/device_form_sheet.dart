@@ -115,9 +115,23 @@ class _DeviceFormSheetState extends State<DeviceFormSheet> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Expanded(child: LabeledField(label: l10n.fieldKeyLabel, controller: key, hintText: 'color', textInputAction: TextInputAction.next)),
+                  Expanded(
+                    child: LabeledField(
+                      label: l10n.fieldKeyLabel,
+                      controller: key,
+                      hintText: 'color',
+                      textInputAction: TextInputAction.next,
+                    ),
+                  ),
                   const SizedBox(width: Insets.sm),
-                  Expanded(child: LabeledField(label: l10n.fieldValueLabel, controller: value, hintText: 'Black', textInputAction: TextInputAction.next)),
+                  Expanded(
+                    child: LabeledField(
+                      label: l10n.fieldValueLabel,
+                      controller: value,
+                      hintText: 'Black',
+                      textInputAction: TextInputAction.next,
+                    ),
+                  ),
                   IconButton(
                     tooltip: l10n.removeField,
                     onPressed: () => _removeField(i),
@@ -134,10 +148,7 @@ class _DeviceFormSheetState extends State<DeviceFormSheet> {
               label: Text(l10n.addField),
             ),
           ),
-          if (_error != null) ...[
-            const SizedBox(height: Insets.sm),
-            Notice(message: describeError(_error!, l10n)),
-          ],
+          if (_error != null) ...[const SizedBox(height: Insets.sm), Notice(message: describeError(_error!, l10n))],
           const SizedBox(height: Insets.lg),
           PrimaryButton(label: l10n.save, loading: _saving, onPressed: _submit),
         ],

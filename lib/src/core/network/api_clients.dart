@@ -11,22 +11,24 @@ abstract final class ApiUrls {
 }
 
 BaseOptions _options(String baseUrl) => BaseOptions(
-      baseUrl: baseUrl,
-      connectTimeout: const Duration(seconds: 12),
-      receiveTimeout: const Duration(seconds: 15),
-      contentType: Headers.jsonContentType,
-      responseType: ResponseType.json,
-    );
+  baseUrl: baseUrl,
+  connectTimeout: const Duration(seconds: 12),
+  receiveTimeout: const Duration(seconds: 15),
+  contentType: Headers.jsonContentType,
+  responseType: ResponseType.json,
+);
 
 /// DummyJSON: login, profile, products and orders.
 final dummyJsonClientProvider = Provider<Dio>((ref) {
   final dio = Dio(_options(ApiUrls.dummyJson));
-  dio.interceptors.add(AuthInterceptor(
-    tokens: ref.watch(tokenHolderProvider),
-    refreshClient: Dio(_options(ApiUrls.dummyJson)),
-    retryClient: () => dio,
-    onSessionExpired: () => ref.read(authControllerProvider.notifier).onSessionExpired(),
-  ));
+  dio.interceptors.add(
+    AuthInterceptor(
+      tokens: ref.watch(tokenHolderProvider),
+      refreshClient: Dio(_options(ApiUrls.dummyJson)),
+      retryClient: () => dio,
+      onSessionExpired: () => ref.read(authControllerProvider.notifier).onSessionExpired(),
+    ),
+  );
   ref.onDispose(dio.close);
   return dio;
 });

@@ -80,10 +80,8 @@ class DummyJsonAuthRepository implements AuthRepository {
     await Future<void>.delayed(const Duration(milliseconds: 700));
   }
 
-  AuthTokens _tokens(Map<String, dynamic> body) => AuthTokens(
-        accessToken: body['accessToken'] as String,
-        refreshToken: body['refreshToken'] as String,
-      );
+  AuthTokens _tokens(Map<String, dynamic> body) =>
+      AuthTokens(accessToken: body['accessToken'] as String, refreshToken: body['refreshToken'] as String);
 }
 
 final authRepositoryProvider = Provider<AuthRepository>(

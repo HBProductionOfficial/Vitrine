@@ -36,7 +36,8 @@ class AuthInterceptor extends QueuedInterceptor {
   Future<void> onError(DioException err, ErrorInterceptorHandler handler) async {
     final request = err.requestOptions;
     final refresh = tokens.refreshToken;
-    final canRetry = err.response?.statusCode == 401 &&
+    final canRetry =
+        err.response?.statusCode == 401 &&
         request.extra[requiresAuth] == true &&
         request.extra[_retried] != true &&
         refresh != null;

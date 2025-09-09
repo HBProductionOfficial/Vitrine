@@ -20,9 +20,7 @@ abstract final class AppTheme {
         color: color,
         height: height,
         letterSpacing: spacing,
-      ).copyWith(
-        fontFamilyFallback: [GoogleFonts.notoSansGeorgian(fontWeight: weight).fontFamily!],
-      );
+      ).copyWith(fontFamilyFallback: [GoogleFonts.notoSansGeorgian(fontWeight: weight).fontFamily!]);
     }
 
     return TextTheme(
@@ -151,9 +149,7 @@ abstract final class AppTheme {
         indicatorColor: p.surfaceMuted,
         height: 68,
         labelTextStyle: WidgetStateProperty.resolveWith(
-          (states) => text.labelMedium?.copyWith(
-            color: states.contains(WidgetState.selected) ? p.ink : p.inkFaint,
-          ),
+          (states) => text.labelMedium?.copyWith(color: states.contains(WidgetState.selected) ? p.ink : p.inkFaint),
         ),
         iconTheme: WidgetStateProperty.resolveWith(
           (states) => IconThemeData(color: states.contains(WidgetState.selected) ? p.ink : p.inkFaint),
@@ -176,9 +172,7 @@ abstract final class AppTheme {
         // the only place with a shadow.
         elevation: 8,
         shadowColor: Colors.black.withValues(alpha: 0.25),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(Corners.sheet)),
-        ),
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(Corners.sheet))),
       ),
       dialogTheme: DialogThemeData(
         backgroundColor: p.surface,

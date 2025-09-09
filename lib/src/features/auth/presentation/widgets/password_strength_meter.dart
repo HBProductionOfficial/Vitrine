@@ -44,7 +44,9 @@ class PasswordStrengthMeter extends StatelessWidget {
             child: Text(
               label,
               textAlign: TextAlign.end,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: strength == PasswordStrength.empty ? null : color),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: strength == PasswordStrength.empty ? null : color),
             ),
           ),
         ],

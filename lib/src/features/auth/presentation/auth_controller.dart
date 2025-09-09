@@ -49,11 +49,11 @@ class SignedIn extends AuthState {
   final bool offerBiometrics;
 
   SignedIn copyWith({bool? biometricEnabled, bool? offerBiometrics}) => SignedIn(
-        user: user,
-        biometricKind: biometricKind,
-        biometricEnabled: biometricEnabled ?? this.biometricEnabled,
-        offerBiometrics: offerBiometrics ?? this.offerBiometrics,
-      );
+    user: user,
+    biometricKind: biometricKind,
+    biometricEnabled: biometricEnabled ?? this.biometricEnabled,
+    offerBiometrics: offerBiometrics ?? this.offerBiometrics,
+  );
 }
 
 class AuthController extends Notifier<AuthState> {
@@ -196,10 +196,7 @@ class AuthController extends Notifier<AuthState> {
     if (current is! SignedIn) return;
     ref.read(tokenHolderProvider).clear();
     unawaited(_forgetSession());
-    state = SignedOut(
-      biometricKind: current.biometricKind,
-      reason: const ApiException(ApiErrorKind.unauthorized),
-    );
+    state = SignedOut(biometricKind: current.biometricKind, reason: const ApiException(ApiErrorKind.unauthorized));
   }
 
   Future<void> _forgetSession() async {

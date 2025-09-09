@@ -13,8 +13,7 @@ enum FieldError {
 final _email = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]{2,}$');
 final _username = RegExp(r'^[a-zA-Z0-9_]{3,20}$');
 
-FieldError? validateRequired(String? value) =>
-    (value == null || value.trim().isEmpty) ? FieldError.required : null;
+FieldError? validateRequired(String? value) => (value == null || value.trim().isEmpty) ? FieldError.required : null;
 
 FieldError? validateLoginUsername(String? value) =>
     (value == null || value.trim().isEmpty) ? FieldError.usernameRequired : null;

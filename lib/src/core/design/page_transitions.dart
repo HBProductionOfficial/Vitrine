@@ -17,9 +17,10 @@ class FadeSlidePageTransitionsBuilder extends PageTransitionsBuilder {
   ) {
     final enter = CurvedAnimation(parent: animation, curve: Motion.enter, reverseCurve: Motion.exit);
     final slide = Tween(begin: const Offset(0.06, 0), end: Offset.zero).animate(enter);
-    final behind = Tween(begin: Offset.zero, end: const Offset(-0.03, 0)).animate(
-      CurvedAnimation(parent: secondaryAnimation, curve: Motion.move),
-    );
+    final behind = Tween(
+      begin: Offset.zero,
+      end: const Offset(-0.03, 0),
+    ).animate(CurvedAnimation(parent: secondaryAnimation, curve: Motion.move));
     return SlideTransition(
       position: behind,
       child: FadeTransition(
