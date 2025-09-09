@@ -107,6 +107,16 @@ class PasswordField extends StatefulWidget {
 class _PasswordFieldState extends State<PasswordField> {
   bool _hidden = true;
 
+  // Without this, the keyboard's "next" action lands on the eye button
+  // instead of the following field.
+  final _toggleFocus = FocusNode(skipTraversal: true);
+
+  @override
+  void dispose() {
+    _toggleFocus.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -123,6 +133,7 @@ class _PasswordFieldState extends State<PasswordField> {
       onSubmitted: widget.onSubmitted,
       prefixIcon: Icons.lock_outline_rounded,
       suffix: IconButton(
+        focusNode: _toggleFocus,
         tooltip: _hidden ? l10n.showPassword : l10n.hidePassword,
         icon: Icon(_hidden ? Icons.visibility_outlined : Icons.visibility_off_outlined, size: 20),
         onPressed: () => setState(() => _hidden = !_hidden),

@@ -9,6 +9,37 @@ abstract final class AppTheme {
   static ThemeData light() => _build(Palette.light, Brightness.light);
   static ThemeData dark() => _build(Palette.dark, Brightness.dark);
 
+  // Manrope keeps price digits even and readable. google_fonts loads one file
+  // per weight, so each style asks for its weight here rather than through
+  // copyWith later. Georgian falls back to Noto Sans Georgian.
+  static TextTheme _textTheme(Palette p) {
+    TextStyle style(double size, FontWeight weight, Color color, {double? height, double? spacing}) {
+      return GoogleFonts.manrope(
+        fontSize: size,
+        fontWeight: weight,
+        color: color,
+        height: height,
+        letterSpacing: spacing,
+      ).copyWith(
+        fontFamilyFallback: [GoogleFonts.notoSansGeorgian(fontWeight: weight).fontFamily!],
+      );
+    }
+
+    return TextTheme(
+      headlineMedium: style(28, FontWeight.w800, p.ink, height: 1.15, spacing: -0.6),
+      headlineSmall: style(22, FontWeight.w800, p.ink, spacing: -0.3),
+      titleLarge: style(19, FontWeight.w700, p.ink),
+      titleMedium: style(16, FontWeight.w700, p.ink),
+      titleSmall: style(14, FontWeight.w700, p.ink),
+      bodyLarge: style(16, FontWeight.w400, p.ink, height: 1.45),
+      bodyMedium: style(14.5, FontWeight.w400, p.inkSoft, height: 1.45),
+      bodySmall: style(12.5, FontWeight.w500, p.inkFaint),
+      labelLarge: style(15, FontWeight.w700, p.ink),
+      labelMedium: style(13, FontWeight.w600, p.inkSoft),
+      labelSmall: style(11.5, FontWeight.w600, p.inkSoft),
+    );
+  }
+
   static ThemeData _build(Palette p, Brightness brightness) {
     final scheme = ColorScheme(
       brightness: brightness,
@@ -30,28 +61,7 @@ abstract final class AppTheme {
       outlineVariant: p.border,
     );
 
-    // Manrope keeps price digits even and readable; Georgian falls back to
-    // Noto Sans Georgian because Manrope has no Georgian glyphs.
-    final georgian = GoogleFonts.notoSansGeorgian().fontFamily;
-    final base = GoogleFonts.manropeTextTheme(
-      ThemeData(brightness: brightness).textTheme,
-    ).apply(
-      bodyColor: p.ink,
-      displayColor: p.ink,
-      fontFamilyFallback: [if (georgian != null) georgian],
-    );
-    final text = base.copyWith(
-      headlineMedium: base.headlineMedium?.copyWith(fontSize: 28, fontWeight: FontWeight.w800, height: 1.15, letterSpacing: -0.6),
-      headlineSmall: base.headlineSmall?.copyWith(fontSize: 22, fontWeight: FontWeight.w800, letterSpacing: -0.3),
-      titleLarge: base.titleLarge?.copyWith(fontSize: 19, fontWeight: FontWeight.w700),
-      titleMedium: base.titleMedium?.copyWith(fontSize: 16, fontWeight: FontWeight.w700),
-      titleSmall: base.titleSmall?.copyWith(fontSize: 14, fontWeight: FontWeight.w700),
-      bodyLarge: base.bodyLarge?.copyWith(fontSize: 16, height: 1.45),
-      bodyMedium: base.bodyMedium?.copyWith(fontSize: 14.5, height: 1.45, color: p.inkSoft),
-      bodySmall: base.bodySmall?.copyWith(fontSize: 12.5, color: p.inkFaint),
-      labelLarge: base.labelLarge?.copyWith(fontSize: 15, fontWeight: FontWeight.w700),
-      labelMedium: base.labelMedium?.copyWith(fontSize: 13, fontWeight: FontWeight.w600, color: p.inkSoft),
-    );
+    final text = _textTheme(p);
 
     final inputBorder = OutlineInputBorder(
       borderRadius: BorderRadius.circular(Corners.input),
@@ -143,7 +153,6 @@ abstract final class AppTheme {
         labelTextStyle: WidgetStateProperty.resolveWith(
           (states) => text.labelMedium?.copyWith(
             color: states.contains(WidgetState.selected) ? p.ink : p.inkFaint,
-            fontWeight: states.contains(WidgetState.selected) ? FontWeight.w700 : FontWeight.w600,
           ),
         ),
         iconTheme: WidgetStateProperty.resolveWith(
@@ -155,7 +164,7 @@ abstract final class AppTheme {
         indicatorColor: p.surfaceMuted,
         selectedIconTheme: IconThemeData(color: p.ink),
         unselectedIconTheme: IconThemeData(color: p.inkFaint),
-        selectedLabelTextStyle: text.labelMedium?.copyWith(color: p.ink, fontWeight: FontWeight.w700),
+        selectedLabelTextStyle: text.labelMedium?.copyWith(color: p.ink),
         unselectedLabelTextStyle: text.labelMedium?.copyWith(color: p.inkFaint),
       ),
       bottomSheetTheme: BottomSheetThemeData(
