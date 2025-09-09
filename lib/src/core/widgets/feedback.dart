@@ -14,6 +14,8 @@ Future<T?> showAppSheet<T>(BuildContext context, {required WidgetBuilder builder
     context: context,
     isScrollControlled: true,
     useSafeArea: true,
+    // Above the tab bar, not inside the current tab.
+    useRootNavigator: true,
     constraints: const BoxConstraints(maxWidth: 560),
     builder: (context) => Padding(
       padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),

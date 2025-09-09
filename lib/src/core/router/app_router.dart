@@ -8,6 +8,7 @@ import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/sign_up_screen.dart';
 import '../../features/auth/presentation/splash_screen.dart';
 import '../../features/auth/presentation/widgets/biometric_offer.dart';
+import '../../features/devices/presentation/devices_screen.dart';
 import '../../features/shell/home_shell.dart';
 import 'routes.dart';
 
@@ -43,7 +44,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             GoRoute(path: Routes.shop, builder: (_, _) => const _Placeholder('Shop')),
           ]),
           StatefulShellBranch(routes: [
-            GoRoute(path: Routes.devices, builder: (_, _) => const _Placeholder('Devices')),
+            GoRoute(path: Routes.devices, builder: (_, _) => const DevicesScreen()),
           ]),
           StatefulShellBranch(routes: [
             GoRoute(path: Routes.cart, builder: (_, _) => const _Placeholder('Cart')),
