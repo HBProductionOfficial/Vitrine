@@ -4,15 +4,30 @@ import 'package:vitrine/l10n/gen/app_localizations.dart';
 import '../../../../core/design/palette.dart';
 import '../../../../core/design/tokens.dart';
 import '../../../../core/format.dart';
+import '../../../../core/router/routes.dart';
 import '../../../../core/widgets/pressable.dart';
 import '../../domain/product.dart';
 import 'product_image.dart';
 
+/// Two columns on phones, up to five on wide windows. The tile height is the
+/// square image plus the text block, so prices line up across a row.
+SliverGridDelegate productGridDelegate(BuildContext context, double width) {
+  final columns = (width / 220).floor().clamp(2, 5);
+  final tile = (width - (columns - 1) * Insets.md) / columns;
+  return SliverGridDelegateWithFixedCrossAxisCount(
+    crossAxisCount: columns,
+    crossAxisSpacing: Insets.md,
+    mainAxisSpacing: Insets.lg,
+    mainAxisExtent: tile + MediaQuery.textScalerOf(context).scale(ProductCard.textBlockHeight),
+  );
+}
+
 class ProductCard extends StatelessWidget {
-  const ProductCard({super.key, required this.product, this.onTap, this.action});
+  const ProductCard({super.key, required this.product, this.onTap, this.action, this.heroScope = Routes.shop});
 
   final Product product;
   final VoidCallback? onTap;
+  final String heroScope;
 
   /// Sits in the image's top-right corner.
   final Widget? action;
@@ -37,7 +52,7 @@ class ProductCard extends StatelessWidget {
               children: [
                 Positioned.fill(
                   child: Hero(
-                    tag: productHeroTag(product.id),
+                    tag: productHeroTag(product.id, heroScope),
                     child: ExcludeSemantics(child: ProductImage(url: product.thumbnail)),
                   ),
                 ),

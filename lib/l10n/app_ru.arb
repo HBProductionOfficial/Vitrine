@@ -137,6 +137,7 @@
   "addToCart": "В корзину",
   "addedToCart": "Добавлено в корзину",
   "viewCart": "Открыть корзину",
+  "inCartCount": "В корзине: {count}",
   "percentOff": "-{percent}%",
   "ratingLabel": "Оценка {rating} из 5",
   "reviewsTitle": "Отзывы ({count})",

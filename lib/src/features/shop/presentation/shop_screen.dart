@@ -10,6 +10,7 @@ import '../../../core/widgets/feedback.dart';
 import '../../../core/widgets/page_body.dart';
 import '../../../core/widgets/skeleton.dart';
 import '../../../core/widgets/state_views.dart';
+import '../../saved/presentation/save_button.dart';
 import '../domain/product.dart';
 import 'shop_controller.dart';
 import 'widgets/product_card.dart';
@@ -90,6 +91,11 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                     titleSpacing: gutter,
                     title: Text(l10n.shopTitle),
                     actions: [
+                      IconButton(
+                        tooltip: l10n.savedTitle,
+                        onPressed: () => context.push(Routes.saved),
+                        icon: const Icon(Icons.favorite_border_rounded),
+                      ),
                       Padding(
                         padding: EdgeInsets.only(right: gutter - Insets.sm),
                         child: TextButton.icon(
@@ -157,7 +163,11 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
             gridDelegate: productGridDelegate(context, constraints.crossAxisExtent),
             delegate: SliverChildBuilderDelegate((context, i) {
               final product = state.products[i];
-              return ProductCard(product: product, onTap: () => context.push(Routes.product(product.id)));
+              return ProductCard(
+                product: product,
+                action: SaveButton(product: product),
+                onTap: () => context.push(Routes.product(product.id)),
+              );
             }, childCount: state.products.length),
           ),
         ),
@@ -167,19 +177,6 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
       ),
     ];
   }
-}
-
-/// Two columns on phones, up to five on wide windows. The tile height is the
-/// square image plus the text block, so prices line up across a row.
-SliverGridDelegate productGridDelegate(BuildContext context, double width) {
-  final columns = (width / 220).floor().clamp(2, 5);
-  final tile = (width - (columns - 1) * Insets.md) / columns;
-  return SliverGridDelegateWithFixedCrossAxisCount(
-    crossAxisCount: columns,
-    crossAxisSpacing: Insets.md,
-    mainAxisSpacing: Insets.lg,
-    mainAxisExtent: tile + MediaQuery.textScalerOf(context).scale(ProductCard.textBlockHeight),
-  );
 }
 
 String sortLabel(ProductSort sort, AppLocalizations l10n) {

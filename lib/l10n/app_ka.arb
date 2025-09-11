@@ -137,6 +137,7 @@
   "addToCart": "კალათაში დამატება",
   "addedToCart": "დაემატა კალათაში",
   "viewCart": "კალათის ნახვა",
+  "inCartCount": "კალათაში: {count}",
   "percentOff": "-{percent}%",
   "ratingLabel": "შეფასება {rating} 5-დან",
   "reviewsTitle": "შეფასებები ({count})",

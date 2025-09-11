@@ -155,6 +155,10 @@
   "addToCart": "Add to cart",
   "addedToCart": "Added to cart",
   "viewCart": "View cart",
+  "inCartCount": "{count} in your cart",
+  "@inCartCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
   "percentOff": "-{percent}%",
   "@percentOff": {
     "placeholders": { "percent": { "type": "int" } }

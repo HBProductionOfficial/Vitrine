@@ -209,9 +209,13 @@ class AuthController extends Notifier<AuthState> {
 
 final authControllerProvider = NotifierProvider<AuthController, AuthState>(AuthController.new);
 
+/// Id of the signed-in user. Cart and saved items are stored per account.
+final currentUserIdProvider = Provider<int?>(
+  (ref) => ref.watch(authControllerProvider.select((s) => s is SignedIn ? s.user.id : null)),
+);
+
 /// Full profile for the Profile tab; the login response only has the basics.
 final currentUserProvider = FutureProvider<User>((ref) {
-  final auth = ref.watch(authControllerProvider);
-  if (auth is! SignedIn) throw StateError('Not signed in');
+  if (ref.watch(currentUserIdProvider) == null) throw StateError('Not signed in');
   return ref.read(authRepositoryProvider).currentUser();
 });

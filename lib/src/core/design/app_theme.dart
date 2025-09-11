@@ -206,6 +206,8 @@ abstract final class AppTheme {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
       ),
       progressIndicatorTheme: ProgressIndicatorThemeData(color: p.ink, linearTrackColor: p.surfaceMuted),
+      // The cart count, in the same colour as the add-to-cart button.
+      badgeTheme: BadgeThemeData(backgroundColor: p.accent, textColor: Palette.readableOn(p.accent)),
       segmentedButtonTheme: SegmentedButtonThemeData(
         style: SegmentedButton.styleFrom(
           backgroundColor: p.surface,

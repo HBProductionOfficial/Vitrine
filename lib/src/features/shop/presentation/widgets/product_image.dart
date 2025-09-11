@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import '../../../../core/design/palette.dart';
 import '../../../../core/design/tokens.dart';
 
-Object productHeroTag(int id) => 'product-image-$id';
+/// [scope] keeps two grids showing the same product (shop and saved) from
+/// trading heroes with each other.
+Object productHeroTag(int id, String scope) => '$scope/product-image-$id';
 
 /// A product photo on a muted "shelf", so cut-out images on transparent
 /// backgrounds still read as a tile.

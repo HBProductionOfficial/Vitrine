@@ -9,7 +9,10 @@ abstract final class Routes {
   static const cart = '/cart';
   static const profile = '/profile';
 
-  static String product(int id) => '$shop/product/$id';
+  static const saved = '$shop/saved';
+
+  /// The product page is reachable from several tabs and stays inside the one it was opened from.
+  static String product(int id, {String from = shop}) => '$from/product/$id';
 
   static const signedOutOnly = {login, signUp, forgotPassword};
 }

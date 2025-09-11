@@ -1,23 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vitrine/l10n/gen/app_localizations.dart';
 
 import '../../core/design/tokens.dart';
+import '../cart/presentation/cart_controller.dart';
 
 /// Bottom navigation on phones, a rail on wider screens. The branches keep
 /// their own navigation stacks, so switching tabs doesn't lose scroll
 /// position or an open product page.
-class HomeShell extends StatelessWidget {
-  const HomeShell({super.key, required this.shell, this.cartCount = 0});
+class HomeShell extends ConsumerWidget {
+  const HomeShell({super.key, required this.shell});
 
   final StatefulNavigationShell shell;
-  final int cartCount;
 
   void _select(int index) => shell.goBranch(index, initialLocation: index == shell.currentIndex);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    final cartCount = ref.watch(cartProvider.select((c) => c.count));
     final wide = MediaQuery.sizeOf(context).width >= Breakpoints.medium;
 
     final destinations = [

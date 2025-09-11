@@ -8,7 +8,9 @@ import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/sign_up_screen.dart';
 import '../../features/auth/presentation/splash_screen.dart';
 import '../../features/auth/presentation/widgets/biometric_offer.dart';
+import '../../features/cart/presentation/cart_screen.dart';
 import '../../features/devices/presentation/devices_screen.dart';
+import '../../features/saved/presentation/saved_screen.dart';
 import '../../features/shell/home_shell.dart';
 import '../../features/shop/presentation/product_screen.dart';
 import '../../features/shop/presentation/shop_screen.dart';
@@ -48,10 +50,8 @@ final routerProvider = Provider<GoRouter>((ref) {
                 path: Routes.shop,
                 builder: (_, _) => const ShopScreen(),
                 routes: [
-                  GoRoute(
-                    path: 'product/:id',
-                    builder: (_, state) => ProductScreen(id: int.tryParse(state.pathParameters['id'] ?? '') ?? 0),
-                  ),
+                  _productRoute(Routes.shop),
+                  GoRoute(path: 'saved', builder: (_, _) => const SavedScreen(), routes: [_productRoute(Routes.saved)]),
                 ],
               ),
             ],
@@ -60,7 +60,9 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [GoRoute(path: Routes.devices, builder: (_, _) => const DevicesScreen())],
           ),
           StatefulShellBranch(
-            routes: [GoRoute(path: Routes.cart, builder: (_, _) => const _Placeholder('Cart'))],
+            routes: [
+              GoRoute(path: Routes.cart, builder: (_, _) => const CartScreen(), routes: [_productRoute(Routes.cart)]),
+            ],
           ),
           StatefulShellBranch(
             routes: [GoRoute(path: Routes.profile, builder: (_, _) => const _Placeholder('Profile', canSignOut: true))],
@@ -76,7 +78,15 @@ final routerProvider = Provider<GoRouter>((ref) {
   return router;
 });
 
-// TODO(alex): replace with the real tab screens as they land.
+/// The product page, nested under whichever tab opened it.
+GoRoute _productRoute(String scope) {
+  return GoRoute(
+    path: 'product/:id',
+    builder: (_, state) => ProductScreen(id: int.tryParse(state.pathParameters['id'] ?? '') ?? 0, heroScope: scope),
+  );
+}
+
+// TODO(alex): replace with the real profile screen.
 class _Placeholder extends ConsumerWidget {
   const _Placeholder(this.title, {this.canSignOut = false});
 

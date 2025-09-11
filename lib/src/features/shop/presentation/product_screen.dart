@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:vitrine/l10n/gen/app_localizations.dart';
 
@@ -10,9 +11,15 @@ import '../../../core/design/palette.dart';
 import '../../../core/design/tokens.dart';
 import '../../../core/errors.dart';
 import '../../../core/format.dart';
+import '../../../core/router/routes.dart';
+import '../../../core/widgets/buttons.dart';
+import '../../../core/widgets/feedback.dart';
 import '../../../core/widgets/page_body.dart';
 import '../../../core/widgets/skeleton.dart';
 import '../../../core/widgets/state_views.dart';
+import '../../cart/presentation/cart_controller.dart';
+import '../../saved/presentation/save_button.dart';
+import '../../saved/presentation/saved_controller.dart';
 import '../data/dummy_json_products_repository.dart';
 import '../domain/product.dart';
 import 'shop_controller.dart';
@@ -23,14 +30,20 @@ final productProvider = FutureProvider.autoDispose.family<Product, int>(
 );
 
 class ProductScreen extends ConsumerWidget {
-  const ProductScreen({super.key, required this.id});
+  const ProductScreen({super.key, required this.id, this.heroScope = Routes.shop});
 
   final int id;
 
-  /// The grid already has most of the product, so show that straight away
-  /// (and let the Hero land) while the full record loads.
+  /// Which list the page was opened from, so the image flies in from there.
+  final String heroScope;
+
+  /// The list we came from already has most of the product, so show that
+  /// straight away (and let the Hero land) while the full record loads.
   Product? _preview(WidgetRef ref) {
-    return ref.read(shopControllerProvider).products.where((p) => p.id == id).firstOrNull;
+    bool match(Product p) => p.id == id;
+    return ref.read(shopControllerProvider).products.where(match).firstOrNull ??
+        ref.read(savedProvider).where(match).firstOrNull ??
+        ref.read(cartProvider).items.map((i) => i.product).where(match).firstOrNull;
   }
 
   @override
@@ -48,49 +61,62 @@ class ProductScreen extends ConsumerWidget {
       );
     }
 
-    return Scaffold(
-      appBar: AppBar(),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          final gutter = pageGutter(constraints.maxWidth);
-          final details = _Details(product: product, loading: async.isLoading);
-          if (constraints.maxWidth < Breakpoints.medium) {
-            return ListView(
-              padding: EdgeInsets.fromLTRB(gutter, 0, gutter, Insets.xxl),
-              children: [
-                // Keep the gallery from filling a landscape phone.
-                Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 480),
-                    child: _Gallery(product: product),
+    // Its own messenger, so snack bars sit above the buy bar instead of covering it.
+    return ScaffoldMessenger(
+      child: Scaffold(
+        appBar: AppBar(
+          actions: [
+            SaveButton(product: product),
+            const SizedBox(width: Insets.sm),
+          ],
+        ),
+        bottomNavigationBar: _BuyBar(product: product),
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+            final gutter = pageGutter(constraints.maxWidth);
+            final details = _Details(product: product, loading: async.isLoading);
+            if (constraints.maxWidth < Breakpoints.medium) {
+              return ListView(
+                padding: EdgeInsets.fromLTRB(gutter, 0, gutter, Insets.xxl),
+                children: [
+                  // Keep the gallery from filling a landscape phone.
+                  Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 480),
+                      child: _Gallery(product: product, heroScope: heroScope),
+                    ),
                   ),
-                ),
-                const SizedBox(height: Insets.xl),
-                details,
-              ],
+                  const SizedBox(height: Insets.xl),
+                  details,
+                ],
+              );
+            }
+            return SingleChildScrollView(
+              padding: EdgeInsets.fromLTRB(gutter, Insets.sm, gutter, Insets.xxl),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    flex: 5,
+                    child: _Gallery(product: product, heroScope: heroScope),
+                  ),
+                  const SizedBox(width: Insets.xxl),
+                  Expanded(flex: 6, child: details),
+                ],
+              ),
             );
-          }
-          return SingleChildScrollView(
-            padding: EdgeInsets.fromLTRB(gutter, Insets.sm, gutter, Insets.xxl),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(flex: 5, child: _Gallery(product: product)),
-                const SizedBox(width: Insets.xxl),
-                Expanded(flex: 6, child: details),
-              ],
-            ),
-          );
-        },
+          },
+        ),
       ),
     );
   }
 }
 
 class _Gallery extends StatefulWidget {
-  const _Gallery({required this.product});
+  const _Gallery({required this.product, required this.heroScope});
 
   final Product product;
+  final String heroScope;
 
   @override
   State<_Gallery> createState() => _GalleryState();
@@ -142,7 +168,7 @@ class _GalleryState extends State<_Gallery> {
                   padding: Insets.xl,
                 ),
               );
-              return i == 0 ? Hero(tag: productHeroTag(product.id), child: image) : image;
+              return i == 0 ? Hero(tag: productHeroTag(product.id, widget.heroScope), child: image) : image;
             },
           ),
         ),
@@ -399,6 +425,60 @@ class _ReviewTile extends StatelessWidget {
           const SizedBox(height: Insets.sm),
           Text(review.comment, style: theme.textTheme.bodyMedium?.copyWith(color: p.ink)),
         ],
+      ),
+    );
+  }
+}
+
+class _BuyBar extends ConsumerWidget {
+  const _BuyBar({required this.product});
+
+  final Product product;
+
+  void _add(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final router = GoRouter.of(context);
+    if (!ref.read(cartProvider.notifier).add(product)) return;
+    showSnack(
+      context,
+      l10n.addedToCart,
+      action: SnackBarAction(label: l10n.viewCart, onPressed: () => router.go(Routes.cart)),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final p = context.palette;
+    final inCart = ref.watch(cartProvider.select((c) => c.quantityOf(product.id)));
+    final canAdd = inCart < ref.read(cartProvider.notifier).limitFor(product);
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: p.background,
+        border: Border(top: BorderSide(color: p.border)),
+      ),
+      child: PageBody(
+        maxWidth: 760,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(Insets.page, Insets.md, Insets.page, Insets.md),
+          child: Row(
+            children: [
+              if (inCart > 0) ...[
+                Text(l10n.inCartCount(inCart), style: Theme.of(context).textTheme.labelMedium),
+                const SizedBox(width: Insets.lg),
+              ],
+              Expanded(
+                child: PrimaryButton(
+                  accent: true,
+                  icon: Icons.add_shopping_cart_rounded,
+                  label: product.inStock ? l10n.addToCart : l10n.outOfStock,
+                  onPressed: canAdd ? () => _add(context, ref) : null,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
