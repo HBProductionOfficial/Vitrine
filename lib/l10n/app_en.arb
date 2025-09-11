@@ -140,7 +140,7 @@
   "@noResultsTitle": {
     "placeholders": { "query": { "type": "String" } }
   },
-  "noResultsBody": "Try a shorter word or another category.",
+  "noResultsBody": "Check the spelling or try a shorter word.",
   "categoryEmpty": "No products in this category right now.",
   "loadingMoreFailed": "Couldn't load more products.",
   "inStock": "{count} in stock",

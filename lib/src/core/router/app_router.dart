@@ -10,6 +10,7 @@ import '../../features/auth/presentation/splash_screen.dart';
 import '../../features/auth/presentation/widgets/biometric_offer.dart';
 import '../../features/devices/presentation/devices_screen.dart';
 import '../../features/shell/home_shell.dart';
+import '../../features/shop/presentation/shop_screen.dart';
 import 'routes.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -41,7 +42,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state, shell) => BiometricOffer(child: HomeShell(shell: shell)),
         branches: [
           StatefulShellBranch(
-            routes: [GoRoute(path: Routes.shop, builder: (_, _) => const _Placeholder('Shop'))],
+            routes: [GoRoute(path: Routes.shop, builder: (_, _) => const ShopScreen())],
           ),
           StatefulShellBranch(
             routes: [GoRoute(path: Routes.devices, builder: (_, _) => const DevicesScreen())],
