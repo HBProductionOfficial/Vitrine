@@ -9,5 +9,7 @@ abstract final class Routes {
   static const cart = '/cart';
   static const profile = '/profile';
 
+  static String product(int id) => '$shop/product/$id';
+
   static const signedOutOnly = {login, signUp, forgotPassword};
 }

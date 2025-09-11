@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:vitrine/l10n/gen/app_localizations.dart';
 
 import '../../../core/design/tokens.dart';
 import '../../../core/errors.dart';
+import '../../../core/router/routes.dart';
 import '../../../core/widgets/feedback.dart';
 import '../../../core/widgets/page_body.dart';
 import '../../../core/widgets/skeleton.dart';
@@ -153,10 +155,10 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
         sliver: SliverLayoutBuilder(
           builder: (context, constraints) => SliverGrid(
             gridDelegate: productGridDelegate(context, constraints.crossAxisExtent),
-            delegate: SliverChildBuilderDelegate(
-              (context, i) => ProductCard(product: state.products[i]),
-              childCount: state.products.length,
-            ),
+            delegate: SliverChildBuilderDelegate((context, i) {
+              final product = state.products[i];
+              return ProductCard(product: product, onTap: () => context.push(Routes.product(product.id)));
+            }, childCount: state.products.length),
           ),
         ),
       ),

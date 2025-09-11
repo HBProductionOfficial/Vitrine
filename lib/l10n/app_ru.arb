@@ -141,6 +141,7 @@
   "ratingLabel": "Оценка {rating} из 5",
   "reviewsTitle": "Отзывы ({count})",
   "noReviews": "Отзывов пока нет.",
+  "reviewsCount": "{count, plural, =0{Нет отзывов} one{{count} отзыв} few{{count} отзыва} many{{count} отзывов} other{{count} отзыва}}",
   "aboutProduct": "О товаре",
   "shippingInfo": "Доставка",
   "warrantyInfo": "Гарантия",

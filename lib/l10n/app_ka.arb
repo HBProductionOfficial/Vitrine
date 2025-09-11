@@ -141,6 +141,7 @@
   "ratingLabel": "შეფასება {rating} 5-დან",
   "reviewsTitle": "შეფასებები ({count})",
   "noReviews": "შეფასებები ჯერ არ არის.",
+  "reviewsCount": "{count, plural, =0{შეფასებები არ არის} other{{count} შეფასება}}",
   "aboutProduct": "პროდუქტის შესახებ",
   "shippingInfo": "მიწოდება",
   "warrantyInfo": "გარანტია",

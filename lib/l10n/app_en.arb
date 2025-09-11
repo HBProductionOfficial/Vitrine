@@ -168,6 +168,10 @@
     "placeholders": { "count": { "type": "int" } }
   },
   "noReviews": "No reviews yet.",
+  "reviewsCount": "{count, plural, =0{No reviews} =1{1 review} other{{count} reviews}}",
+  "@reviewsCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
   "aboutProduct": "About this product",
   "shippingInfo": "Shipping",
   "warrantyInfo": "Warranty",
