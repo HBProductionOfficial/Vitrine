@@ -178,6 +178,8 @@
   "orderFailed": "Не удалось оформить заказ. Корзина сохранена.",
 
   "profileTitle": "Профиль",
+  "account": "Аккаунт",
+  "languageSystem": "Как в телефоне",
   "appearance": "Оформление",
   "themeSystem": "Системная",
   "themeLight": "Светлая",
@@ -199,5 +201,18 @@
   "contactEmail": "Почта",
   "contactPhone": "Телефон",
   "contactAddress": "Адрес",
-  "profileLoadFailed": "Не удалось загрузить профиль."
+  "profileLoadFailed": "Не удалось загрузить профиль.",
+
+  "settings": "Настройки",
+  "general": "Общие",
+  "languageSystemHint": "Как язык телефона",
+  "themeSystemHint": "Как светлая или тёмная тема телефона",
+  "biometricHint": "Вход в приложение без ввода пароля",
+  "version": "Версия",
+  "reportProblem": "Сообщить о проблеме",
+  "productsSource": "Товары от DummyJSON",
+  "devicesSource": "Устройства от restful-api.dev",
+  "couldNotOpenLink": "Не удалось открыть ссылку.",
+  "contactDetails": "Контакты",
+  "savedCount": "{count, plural, =0{Пока ничего} one{{count} товар} few{{count} товара} many{{count} товаров} other{{count} товара}}"
 }

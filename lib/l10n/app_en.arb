@@ -226,6 +226,8 @@
   "orderFailed": "Couldn't place the order. Your cart is still here.",
 
   "profileTitle": "Profile",
+  "account": "Account",
+  "languageSystem": "Same as phone",
   "appearance": "Appearance",
   "themeSystem": "System",
   "themeLight": "Light",
@@ -250,5 +252,21 @@
   "contactEmail": "Email",
   "contactPhone": "Phone",
   "contactAddress": "Address",
-  "profileLoadFailed": "Couldn't load your profile."
+  "profileLoadFailed": "Couldn't load your profile.",
+
+  "settings": "Settings",
+  "general": "General",
+  "languageSystemHint": "Follows your phone's language",
+  "themeSystemHint": "Follows your phone's light or dark mode",
+  "biometricHint": "Open the app without typing your password",
+  "version": "Version",
+  "reportProblem": "Report a problem",
+  "productsSource": "Products from DummyJSON",
+  "devicesSource": "Devices from restful-api.dev",
+  "couldNotOpenLink": "Couldn't open the link.",
+  "contactDetails": "Contact details",
+  "savedCount": "{count, plural, =0{Nothing saved yet} =1{1 product} other{{count} products}}",
+  "@savedCount": {
+    "placeholders": { "count": { "type": "int" } }
+  }
 }

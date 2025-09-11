@@ -10,7 +10,9 @@ import '../../features/auth/presentation/splash_screen.dart';
 import '../../features/auth/presentation/widgets/biometric_offer.dart';
 import '../../features/cart/presentation/cart_screen.dart';
 import '../../features/devices/presentation/devices_screen.dart';
+import '../../features/profile/presentation/profile_screen.dart';
 import '../../features/saved/presentation/saved_screen.dart';
+import '../../features/settings/settings_screen.dart';
 import '../../features/shell/home_shell.dart';
 import '../../features/shop/presentation/product_screen.dart';
 import '../../features/shop/presentation/shop_screen.dart';
@@ -65,7 +67,13 @@ final routerProvider = Provider<GoRouter>((ref) {
             ],
           ),
           StatefulShellBranch(
-            routes: [GoRoute(path: Routes.profile, builder: (_, _) => const _Placeholder('Profile', canSignOut: true))],
+            routes: [
+              GoRoute(
+                path: Routes.profile,
+                builder: (_, _) => const ProfileScreen(),
+                routes: [GoRoute(path: 'settings', builder: (_, _) => const SettingsScreen())],
+              ),
+            ],
           ),
         ],
       ),
@@ -84,27 +92,4 @@ GoRoute _productRoute(String scope) {
     path: 'product/:id',
     builder: (_, state) => ProductScreen(id: int.tryParse(state.pathParameters['id'] ?? '') ?? 0, heroScope: scope),
   );
-}
-
-// TODO(alex): replace with the real profile screen.
-class _Placeholder extends ConsumerWidget {
-  const _Placeholder(this.title, {this.canSignOut = false});
-
-  final String title;
-  final bool canSignOut;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      appBar: AppBar(title: Text(title)),
-      body: Center(
-        child: canSignOut
-            ? OutlinedButton(
-                onPressed: () => ref.read(authControllerProvider.notifier).signOut(),
-                child: const Text('Sign out'),
-              )
-            : const Text('Coming soon'),
-      ),
-    );
-  }
 }
