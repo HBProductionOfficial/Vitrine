@@ -6,21 +6,17 @@ import 'token_holder.dart';
 /// On a 401 the interceptor refreshes the access token once and replays the
 /// request; if the refresh fails too, [onSessionExpired] signs the user out.
 class AuthInterceptor extends QueuedInterceptor {
-  AuthInterceptor({
-    required this.tokens,
-    required this.refreshClient,
-    required this.retryClient,
-    required this.onSessionExpired,
-  });
+  AuthInterceptor({required this.tokens, required this.plainClient, required this.onSessionExpired});
 
   static const requiresAuth = 'requiresAuth';
   static const _retried = 'retriedAfterRefresh';
 
   final TokenHolder tokens;
 
-  /// Separate client without this interceptor, so refreshing can't loop.
-  final Dio refreshClient;
-  final Dio Function() retryClient;
+  /// A client without this interceptor, for the refresh call and the replay.
+  /// Replaying through the intercepted client would deadlock if the replay
+  /// failed too: its error would queue behind the onError still waiting on it.
+  final Dio plainClient;
   final void Function() onSessionExpired;
 
   @override
@@ -44,7 +40,7 @@ class AuthInterceptor extends QueuedInterceptor {
     if (!canRetry) return handler.next(err);
 
     try {
-      final response = await refreshClient.post<Map<String, dynamic>>(
+      final response = await plainClient.post<Map<String, dynamic>>(
         '/auth/refresh',
         data: {'refreshToken': refresh, 'expiresInMins': 30},
       );
@@ -59,7 +55,7 @@ class AuthInterceptor extends QueuedInterceptor {
     request.extra[_retried] = true;
     request.headers['Authorization'] = 'Bearer ${tokens.accessToken}';
     try {
-      handler.resolve(await retryClient().fetch(request));
+      handler.resolve(await plainClient.fetch(request));
     } on DioException catch (e) {
       handler.next(e);
     }

@@ -24,8 +24,7 @@ final dummyJsonClientProvider = Provider<Dio>((ref) {
   dio.interceptors.add(
     AuthInterceptor(
       tokens: ref.watch(tokenHolderProvider),
-      refreshClient: Dio(_options(ApiUrls.dummyJson)),
-      retryClient: () => dio,
+      plainClient: Dio(_options(ApiUrls.dummyJson)),
       onSessionExpired: () => ref.read(authControllerProvider.notifier).onSessionExpired(),
     ),
   );
