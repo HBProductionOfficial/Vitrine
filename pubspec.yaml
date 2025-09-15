@@ -35,3 +35,18 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   generate: true
+
+# Icons are drawn by tool/render_icon.dart; see the comment there.
+flutter_launcher_icons:
+  image_path: assets/icon/icon.png
+  android: true
+  min_sdk_android: 24
+  adaptive_icon_background: "#1D1B18"
+  adaptive_icon_foreground: assets/icon/foreground.png
+  adaptive_icon_monochrome: assets/icon/foreground.png
+  ios: true
+  remove_alpha_ios: true
+  web:
+    generate: true
+    background_color: "#F6F3EE"
+    theme_color: "#1D1B18"
