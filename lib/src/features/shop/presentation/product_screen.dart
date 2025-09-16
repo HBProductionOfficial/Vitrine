@@ -64,11 +64,10 @@ class ProductScreen extends ConsumerWidget {
     // Its own messenger, so snack bars sit above the buy bar instead of covering it.
     return ScaffoldMessenger(
       child: Scaffold(
-        appBar: AppBar(
-          actions: [
-            SaveButton(product: product),
-            const SizedBox(width: Insets.sm),
-          ],
+        // The content below has no padding of its own, hence the extra page insets.
+        appBar: PageAppBar(
+          maxWidth: Breakpoints.contentMaxWidth + 2 * Insets.page,
+          actions: [SaveButton(product: product)],
         ),
         bottomNavigationBar: _BuyBar(product: product),
         body: LayoutBuilder(

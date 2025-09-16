@@ -20,7 +20,8 @@ class SavedScreen extends ConsumerWidget {
     final saved = ref.watch(savedProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.savedTitle)),
+      // The grid below has no padding of its own, hence the extra page insets.
+      appBar: PageAppBar(maxWidth: Breakpoints.contentMaxWidth + 2 * Insets.page, title: Text(l10n.savedTitle)),
       body: saved.isEmpty
           ? MessageView(icon: Icons.favorite_border_rounded, title: l10n.savedEmptyTitle, message: l10n.savedEmptyBody)
           : LayoutBuilder(

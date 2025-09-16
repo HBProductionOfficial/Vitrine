@@ -156,7 +156,8 @@ class _DevicesScreenState extends ConsumerState<DevicesScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(
+      appBar: PageAppBar(
+        maxWidth: 760,
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -167,14 +168,11 @@ class _DevicesScreenState extends ConsumerState<DevicesScreen> {
         actions: [
           // In the app bar rather than a FAB, which would sit on top of the
           // expanded row that auto-scroll just brought into view.
-          Padding(
-            padding: const EdgeInsets.only(right: Insets.sm),
-            child: TextButton.icon(
-              style: TextButton.styleFrom(textStyle: Theme.of(context).textTheme.labelLarge),
-              onPressed: () => _openForm(),
-              icon: const Icon(Icons.add_rounded, size: 20),
-              label: Text(l10n.addDevice),
-            ),
+          TextButton.icon(
+            style: TextButton.styleFrom(textStyle: Theme.of(context).textTheme.labelLarge),
+            onPressed: () => _openForm(),
+            icon: const Icon(Icons.add_rounded, size: 20),
+            label: Text(l10n.addDevice),
           ),
         ],
       ),

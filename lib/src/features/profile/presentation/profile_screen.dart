@@ -73,7 +73,8 @@ class ProfileScreen extends ConsumerWidget {
     if (auth is! SignedIn) return const SizedBox.shrink();
 
     return Scaffold(
-      appBar: AppBar(
+      appBar: PageAppBar(
+        maxWidth: 640,
         title: Text(l10n.profileTitle),
         actions: [
           IconButton(
@@ -81,7 +82,6 @@ class ProfileScreen extends ConsumerWidget {
             onPressed: () => context.push(Routes.settings),
             icon: const Icon(Icons.settings_outlined),
           ),
-          const SizedBox(width: Insets.sm),
         ],
       ),
       body: PageBody(

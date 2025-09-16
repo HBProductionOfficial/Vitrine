@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:vitrine/l10n/gen/app_localizations.dart';
 
 import '../../core/design/tokens.dart';
+import '../../core/widgets/vitrine_mark.dart';
 import '../cart/presentation/cart_controller.dart';
 
 /// Bottom navigation on phones, a rail on wider screens. The branches keep
@@ -42,6 +43,10 @@ class HomeShell extends ConsumerWidget {
               selectedIndex: shell.currentIndex,
               onDestinationSelected: _select,
               labelType: NavigationRailLabelType.all,
+              leading: const Padding(
+                padding: EdgeInsets.only(top: Insets.sm, bottom: Insets.lg),
+                child: VitrineMark(size: 40),
+              ),
               destinations: [
                 for (final (i, d) in destinations.indexed)
                   NavigationRailDestination(icon: icon(i, d.$1), selectedIcon: icon(i, d.$2), label: Text(d.$3)),

@@ -28,7 +28,8 @@ class CartScreen extends ConsumerWidget {
     // Its own messenger, so the undo snack bar sits above the totals instead of covering them.
     return ScaffoldMessenger(
       child: Scaffold(
-        appBar: AppBar(
+        appBar: PageAppBar(
+          maxWidth: 760,
           title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

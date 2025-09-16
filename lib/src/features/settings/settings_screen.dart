@@ -78,7 +78,7 @@ class SettingsScreen extends ConsumerWidget {
     final version = ref.watch(appVersionProvider).value;
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.settings)),
+      appBar: PageAppBar(maxWidth: 640, title: Text(l10n.settings)),
       body: PageBody(
         maxWidth: 640,
         child: ListView(
