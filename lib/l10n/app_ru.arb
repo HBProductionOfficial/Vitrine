@@ -214,5 +214,17 @@
   "devicesSource": "Устройства от restful-api.dev",
   "couldNotOpenLink": "Не удалось открыть ссылку.",
   "contactDetails": "Контакты",
-  "savedCount": "{count, plural, =0{Пока ничего} one{{count} товар} few{{count} товара} many{{count} товаров} other{{count} товара}}"
+  "savedCount": "{count, plural, =0{Пока ничего} one{{count} товар} few{{count} товара} many{{count} товаров} other{{count} товара}}",
+
+  "writeReview": "Написать отзыв",
+  "editReview": "Изменить отзыв",
+  "yourRating": "Ваша оценка",
+  "rateStars": "{count, plural, =1{1 звезда} few{{count} звезды} many{{count} звёзд} other{{count} звезды}}",
+  "reviewCommentLabel": "Ваш отзыв",
+  "reviewCommentHint": "Что понравилось, а что нет?",
+  "reviewLocalNote": "DummyJSON не принимает новые отзывы, поэтому ваш сохраняется только на этом телефоне.",
+  "reviewSaved": "Отзыв сохранён",
+  "reviewDeleted": "Отзыв удалён",
+  "reviewYou": "Вы",
+  "errorRatingRequired": "Выберите оценку"
 }

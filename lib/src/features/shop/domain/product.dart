@@ -17,6 +17,14 @@ class Review {
       date: DateTime.tryParse(json['date'] as String? ?? ''),
     );
   }
+
+  /// DummyJSON's own field names, so [fromJson] reads it back.
+  Map<String, dynamic> toJson() => {
+    'rating': rating,
+    'comment': comment,
+    'reviewerName': reviewer,
+    'date': date?.toIso8601String(),
+  };
 }
 
 @immutable

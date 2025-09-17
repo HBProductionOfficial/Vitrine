@@ -268,5 +268,20 @@
   "savedCount": "{count, plural, =0{Nothing saved yet} =1{1 product} other{{count} products}}",
   "@savedCount": {
     "placeholders": { "count": { "type": "int" } }
-  }
+  },
+
+  "writeReview": "Write a review",
+  "editReview": "Edit your review",
+  "yourRating": "Your rating",
+  "rateStars": "{count, plural, =1{1 star} other{{count} stars}}",
+  "@rateStars": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "reviewCommentLabel": "Your review",
+  "reviewCommentHint": "What did you like, or not?",
+  "reviewLocalNote": "DummyJSON doesn't accept new reviews, so yours is saved on this phone only.",
+  "reviewSaved": "Review saved",
+  "reviewDeleted": "Review deleted",
+  "reviewYou": "You",
+  "errorRatingRequired": "Choose a star rating"
 }

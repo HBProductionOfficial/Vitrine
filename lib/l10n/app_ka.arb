@@ -214,5 +214,17 @@
   "devicesSource": "მოწყობილობები restful-api.dev-დან",
   "couldNotOpenLink": "ბმული ვერ გაიხსნა.",
   "contactDetails": "საკონტაქტო ინფორმაცია",
-  "savedCount": "{count, plural, =0{ჯერ არაფერია შენახული} other{{count} პროდუქტი}}"
+  "savedCount": "{count, plural, =0{ჯერ არაფერია შენახული} other{{count} პროდუქტი}}",
+
+  "writeReview": "შეფასების დაწერა",
+  "editReview": "შეფასების რედაქტირება",
+  "yourRating": "შენი შეფასება",
+  "rateStars": "{count, plural, =1{1 ვარსკვლავი} other{{count} ვარსკვლავი}}",
+  "reviewCommentLabel": "შენი მიმოხილვა",
+  "reviewCommentHint": "რა მოგეწონა ან რა არა?",
+  "reviewLocalNote": "DummyJSON ახალ შეფასებებს არ იღებს, ამიტომ შენი შეფასება მხოლოდ ამ ტელეფონზე ინახება.",
+  "reviewSaved": "შეფასება შენახულია",
+  "reviewDeleted": "შეფასება წაიშალა",
+  "reviewYou": "შენ",
+  "errorRatingRequired": "აირჩიე ვარსკვლავების რაოდენობა"
 }
