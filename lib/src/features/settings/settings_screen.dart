@@ -9,6 +9,7 @@ import '../../core/design/tokens.dart';
 import '../../core/errors.dart';
 import '../../core/links.dart';
 import '../../core/widgets/feedback.dart';
+import '../../core/widgets/motion.dart';
 import '../../core/widgets/page_body.dart';
 import '../auth/presentation/auth_controller.dart';
 import '../auth/presentation/widgets/sign_out.dart';
@@ -23,50 +24,45 @@ class SettingsScreen extends ConsumerWidget {
 
   Future<void> _pickLanguage(BuildContext context, WidgetRef ref, String? current) async {
     final l10n = AppLocalizations.of(context);
-    // A record, so "same as phone" (null) can be told apart from closing the sheet.
-    final picked = await showAppSheet<(String?,)>(
+    final picked = await showOptionSheet<String?>(
       context,
-      builder: (sheet) => OptionSheet(
-        title: l10n.language,
-        options: [
-          for (final code in [null, ...languageNames.keys])
-            OptionTile(
-              label: languageNames[code] ?? l10n.languageSystem,
-              hint: code == null ? l10n.languageSystemHint : null,
-              badgeText: code?.toUpperCase(),
-              badgeIcon: code == null ? Icons.smartphone_rounded : null,
-              selected: code == current,
-              onTap: () => Navigator.pop(sheet, (code,)),
-            ),
-        ],
-      ),
+      title: l10n.language,
+      current: current,
+      options: [
+        for (final code in [null, ...languageNames.keys])
+          SheetOption(
+            value: code,
+            label: languageNames[code] ?? l10n.languageSystem,
+            hint: code == null ? l10n.languageSystemHint : null,
+            badgeText: code?.toUpperCase(),
+            badgeIcon: code == null ? Icons.smartphone_rounded : null,
+          ),
+      ],
     );
-    if (picked != null) await ref.read(settingsProvider.notifier).setLocale(picked.$1);
+    if (picked != null) await ref.read(settingsProvider.notifier).setLocale(picked.value);
   }
 
   Future<void> _pickTheme(BuildContext context, WidgetRef ref, ThemeMode current) async {
     final l10n = AppLocalizations.of(context);
-    final picked = await showAppSheet<ThemeMode>(
+    final picked = await showOptionSheet<ThemeMode>(
       context,
-      builder: (sheet) => OptionSheet(
-        title: l10n.appearance,
-        options: [
-          for (final (mode, icon) in [
-            (ThemeMode.system, Icons.smartphone_rounded),
-            (ThemeMode.light, Icons.light_mode_outlined),
-            (ThemeMode.dark, Icons.dark_mode_outlined),
-          ])
-            OptionTile(
-              label: themeLabel(mode, l10n),
-              hint: mode == ThemeMode.system ? l10n.themeSystemHint : null,
-              badgeIcon: icon,
-              selected: mode == current,
-              onTap: () => Navigator.pop(sheet, mode),
-            ),
-        ],
-      ),
+      title: l10n.appearance,
+      current: current,
+      options: [
+        for (final (mode, icon) in [
+          (ThemeMode.system, Icons.smartphone_rounded),
+          (ThemeMode.light, Icons.light_mode_outlined),
+          (ThemeMode.dark, Icons.dark_mode_outlined),
+        ])
+          SheetOption(
+            value: mode,
+            label: themeLabel(mode, l10n),
+            hint: mode == ThemeMode.system ? l10n.themeSystemHint : null,
+            badgeIcon: icon,
+          ),
+      ],
     );
-    if (picked != null) await ref.read(settingsProvider.notifier).setThemeMode(picked);
+    if (picked != null) await ref.read(settingsProvider.notifier).setThemeMode(picked.value);
   }
 
   @override
@@ -136,15 +132,18 @@ class SettingsScreen extends ConsumerWidget {
                 ),
               ],
             ),
-            OutlinedButton.icon(
-              style: OutlinedButton.styleFrom(
-                foregroundColor: p.danger,
-                side: BorderSide(color: p.danger.withValues(alpha: 0.5), width: 1.2),
-                minimumSize: const Size.fromHeight(52),
+            ScaleOnPress(
+              builder: (states) => OutlinedButton.icon(
+                statesController: states,
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: p.danger,
+                  backgroundColor: p.dangerSoft,
+                  minimumSize: const Size.fromHeight(52),
+                ),
+                onPressed: () => confirmSignOut(context, ref),
+                icon: const Icon(Icons.logout_rounded, size: 20),
+                label: Text(l10n.signOut),
               ),
-              onPressed: () => confirmSignOut(context, ref),
-              icon: const Icon(Icons.logout_rounded, size: 20),
-              label: Text(l10n.signOut),
             ),
           ],
         ),

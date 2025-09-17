@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../design/palette.dart';
 import '../design/tokens.dart';
+import 'motion.dart';
 
 enum NoticeTone { error, info }
 
@@ -44,6 +45,35 @@ class Notice extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Where a form shows its error. The space opens and closes smoothly instead
+/// of pushing the button down in one jump; a null [message] closes it.
+class NoticeSlot extends StatelessWidget {
+  const NoticeSlot({super.key, this.message, this.gap = Insets.md});
+
+  final String? message;
+
+  /// Space above the notice while it's showing.
+  final double gap;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedSize(
+      duration: reduceMotion(context) ? Duration.zero : Motion.base,
+      curve: Motion.move,
+      alignment: Alignment.topCenter,
+      child: message == null
+          ? const SizedBox(width: double.infinity)
+          : Padding(
+              padding: EdgeInsets.only(top: gap),
+              child: FadeSlideIn(
+                key: ValueKey(message),
+                child: Notice(message: message!),
+              ),
+            ),
     );
   }
 }

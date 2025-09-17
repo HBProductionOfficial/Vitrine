@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'package:vitrine/l10n/gen/app_localizations.dart';
+import '../design/app_theme.dart';
+import '../design/palette.dart';
 import '../design/tokens.dart';
 
 void showSnack(BuildContext context, String message, {SnackBarAction? action}) {
@@ -17,10 +19,21 @@ Future<T?> showAppSheet<T>(BuildContext context, {required WidgetBuilder builder
     // Above the tab bar, not inside the current tab.
     useRootNavigator: true,
     constraints: const BoxConstraints(maxWidth: 560),
-    builder: (context) => Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
-      child: builder(context),
-    ),
+    builder: (context) {
+      // Fields on a sheet need a darker fill than fields on the page.
+      final theme = Theme.of(context);
+      return Theme(
+        data: theme.copyWith(
+          inputDecorationTheme: theme.inputDecorationTheme.copyWith(
+            fillColor: fieldFill(context.palette, onSurface: true),
+          ),
+        ),
+        child: Padding(
+          padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
+          child: builder(context),
+        ),
+      );
+    },
   );
 }
 

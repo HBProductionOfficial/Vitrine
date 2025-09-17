@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../../core/design/palette.dart';
 import '../../../core/design/tokens.dart';
+import '../../../core/widgets/feedback.dart';
+import '../../../core/widgets/motion.dart';
 
 /// A titled card of rows with hairlines between them. Used by Profile and
 /// Settings so the two screens read as one set.
@@ -27,10 +29,7 @@ class SettingsGroup extends StatelessWidget {
           Material(
             color: p.surface,
             clipBehavior: Clip.antiAlias,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(Corners.card),
-              side: BorderSide(color: p.border),
-            ),
+            borderRadius: BorderRadius.circular(Corners.card),
             child: Column(
               children: [
                 for (final (i, child) in children.indexed) ...[
@@ -48,7 +47,7 @@ class SettingsGroup extends StatelessWidget {
 
 /// Icon, label, optional hint and value. Shows a chevron when it goes
 /// somewhere, or an outward arrow when it leaves the app.
-class SettingsRow extends StatelessWidget {
+class SettingsRow extends StatefulWidget {
   const SettingsRow({
     super.key,
     required this.icon,
@@ -71,112 +70,65 @@ class SettingsRow extends StatelessWidget {
   final Color? color;
 
   @override
-  Widget build(BuildContext context) {
-    final p = context.palette;
-    final theme = Theme.of(context);
-    final tint = color ?? p.ink;
-
-    final Widget? end =
-        trailing ??
-        (onTap == null || color != null
-            ? null
-            : Icon(
-                external ? Icons.open_in_new_rounded : Icons.chevron_right_rounded,
-                size: external ? 18 : 24,
-                color: p.inkFaint,
-              ));
-
-    return InkWell(
-      onTap: onTap,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: 56),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: Insets.lg, vertical: Insets.sm),
-          child: Row(
-            children: [
-              Icon(icon, size: 22, color: color ?? p.inkSoft),
-              const SizedBox(width: Insets.lg),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(label, style: theme.textTheme.bodyLarge?.copyWith(color: tint, height: 1.3)),
-                    if (hint != null) Text(hint!, style: theme.textTheme.bodySmall),
-                  ],
-                ),
-              ),
-              if (value != null) ...[const SizedBox(width: Insets.sm), Text(value!, style: theme.textTheme.bodyMedium)],
-              if (end != null) ...[const SizedBox(width: Insets.xs), end],
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+  State<SettingsRow> createState() => _SettingsRowState();
 }
 
-/// One choice in a picker sheet: a round badge (letters or an icon), a label
-/// with an optional hint, and a check on the current one.
-class OptionTile extends StatelessWidget {
-  const OptionTile({
-    super.key,
-    required this.label,
-    required this.selected,
-    required this.onTap,
-    this.hint,
-    this.badgeText,
-    this.badgeIcon,
-  });
-
-  final String label;
-  final String? hint;
-  final String? badgeText;
-  final IconData? badgeIcon;
-  final bool selected;
-  final VoidCallback onTap;
+class _SettingsRowState extends State<SettingsRow> {
+  bool _down = false;
 
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
     final theme = Theme.of(context);
-    final badgeColor = selected ? p.onInk : p.inkSoft;
+    final tint = widget.color ?? p.ink;
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: Insets.sm),
-      child: Material(
-        color: selected ? p.surfaceMuted : p.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(Corners.button),
-          side: BorderSide(color: selected ? p.ink : p.border, width: selected ? 1.4 : 1),
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.all(Insets.md),
+    final Widget? end =
+        widget.trailing ??
+        (widget.onTap == null || widget.color != null
+            ? null
+            : AnimatedSlide(
+                // The chevron leans in the direction you're about to go.
+                offset: Offset(_down && !widget.external ? 0.25 : 0, 0),
+                duration: Motion.fast,
+                child: Icon(
+                  widget.external ? Icons.open_in_new_rounded : Icons.chevron_right_rounded,
+                  size: widget.external ? 18 : 24,
+                  color: p.inkFaint,
+                ),
+              ));
+
+    return InkWell(
+      onTap: widget.onTap,
+      onHighlightChanged: (down) => setState(() => _down = down),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 56),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: Insets.lg, vertical: Insets.sm),
+          child: PressScale(
+            down: _down,
+            scale: 0.98,
             child: Row(
               children: [
-                Container(
-                  width: 36,
-                  height: 36,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(color: selected ? p.ink : p.surfaceMuted, shape: BoxShape.circle),
-                  child: badgeIcon != null
-                      ? Icon(badgeIcon, size: 18, color: badgeColor)
-                      : Text(badgeText ?? '', style: theme.textTheme.labelSmall?.copyWith(color: badgeColor)),
-                ),
-                const SizedBox(width: Insets.md),
+                Icon(widget.icon, size: 22, color: widget.color ?? p.inkSoft),
+                const SizedBox(width: Insets.lg),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(label, style: theme.textTheme.titleSmall),
-                      if (hint != null) Text(hint!, style: theme.textTheme.bodySmall),
+                      Text(widget.label, style: theme.textTheme.bodyLarge?.copyWith(color: tint, height: 1.3)),
+                      if (widget.hint != null) Text(widget.hint!, style: theme.textTheme.bodySmall),
                     ],
                   ),
                 ),
-                if (selected) Icon(Icons.check_rounded, color: p.ink),
+                if (widget.value != null) ...[
+                  const SizedBox(width: Insets.sm),
+                  AnimatedSwitcher(
+                    duration: Motion.base,
+                    child: Text(widget.value!, key: ValueKey(widget.value), style: theme.textTheme.bodyMedium),
+                  ),
+                ],
+                if (end != null) ...[const SizedBox(width: Insets.xs), end],
               ],
             ),
           ),
@@ -186,12 +138,56 @@ class OptionTile extends StatelessWidget {
   }
 }
 
-/// Sheet body for a short list of [OptionTile]s under a title.
-class OptionSheet extends StatelessWidget {
-  const OptionSheet({super.key, required this.title, required this.options});
+/// One entry for [showOptionSheet].
+class SheetOption<T> {
+  const SheetOption({required this.value, required this.label, this.hint, this.badgeText, this.badgeIcon});
+
+  final T value;
+  final String label;
+  final String? hint;
+  final String? badgeText;
+  final IconData? badgeIcon;
+}
+
+/// A short list to pick one from. The new choice lights up before the sheet
+/// closes, so the change is visible rather than instant. Returns the chosen
+/// option, or null if the sheet was dismissed.
+Future<SheetOption<T>?> showOptionSheet<T>(
+  BuildContext context, {
+  required String title,
+  required T current,
+  required List<SheetOption<T>> options,
+}) {
+  return showAppSheet<SheetOption<T>>(
+    context,
+    builder: (_) => _OptionSheet<T>(title: title, current: current, options: options),
+  );
+}
+
+class _OptionSheet<T> extends StatefulWidget {
+  const _OptionSheet({required this.title, required this.current, required this.options});
 
   final String title;
-  final List<Widget> options;
+  final T current;
+  final List<SheetOption<T>> options;
+
+  @override
+  State<_OptionSheet<T>> createState() => _OptionSheetState<T>();
+}
+
+class _OptionSheetState<T> extends State<_OptionSheet<T>> {
+  late T _selected = widget.current;
+  bool _closing = false;
+
+  Future<void> _pick(SheetOption<T> option) async {
+    if (_closing) return;
+    setState(() {
+      _selected = option.value;
+      _closing = true;
+    });
+    if (!reduceMotion(context)) await Future<void>.delayed(const Duration(milliseconds: 260));
+    if (mounted) Navigator.pop(context, option);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -203,10 +199,111 @@ class OptionSheet extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(title, style: Theme.of(context).textTheme.headlineSmall),
+            Text(widget.title, style: Theme.of(context).textTheme.headlineSmall),
             const SizedBox(height: Insets.lg),
-            ...options,
+            for (final (i, option) in widget.options.indexed)
+              FadeSlideIn(
+                delay: FadeSlideIn.stagger(i),
+                child: _OptionTile(option: option, selected: option.value == _selected, onTap: () => _pick(option)),
+              ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _OptionTile extends StatefulWidget {
+  const _OptionTile({required this.option, required this.selected, required this.onTap});
+
+  final SheetOption<Object?> option;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  State<_OptionTile> createState() => _OptionTileState();
+}
+
+class _OptionTileState extends State<_OptionTile> {
+  bool _down = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final theme = Theme.of(context);
+    final selected = widget.selected;
+    final option = widget.option;
+    final fg = selected ? p.onInk : p.ink;
+    final faint = selected ? p.onInk.withValues(alpha: 0.75) : p.inkFaint;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: Insets.sm),
+      child: PressScale(
+        down: _down,
+        scale: 0.97,
+        child: AnimatedContainer(
+          duration: Motion.base,
+          curve: Motion.move,
+          decoration: BoxDecoration(
+            color: selected ? p.ink : p.surfaceMuted,
+            borderRadius: BorderRadius.circular(Corners.button),
+          ),
+          child: Material(
+            type: MaterialType.transparency,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(Corners.button),
+              onTap: widget.onTap,
+              onHighlightChanged: (down) => setState(() => _down = down),
+              child: Semantics(
+                selected: selected,
+                child: Padding(
+                  padding: const EdgeInsets.all(Insets.md),
+                  child: Row(
+                    children: [
+                      AnimatedContainer(
+                        duration: Motion.base,
+                        width: 36,
+                        height: 36,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: selected ? p.onInk.withValues(alpha: 0.14) : p.surface,
+                          shape: BoxShape.circle,
+                        ),
+                        child: option.badgeIcon != null
+                            ? Icon(option.badgeIcon, size: 18, color: fg)
+                            : Text(option.badgeText ?? '', style: theme.textTheme.labelSmall?.copyWith(color: fg)),
+                      ),
+                      const SizedBox(width: Insets.md),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            AnimatedDefaultTextStyle(
+                              duration: Motion.base,
+                              style: theme.textTheme.titleSmall!.copyWith(color: fg),
+                              child: Text(option.label),
+                            ),
+                            if (option.hint != null)
+                              AnimatedDefaultTextStyle(
+                                duration: Motion.base,
+                                style: theme.textTheme.bodySmall!.copyWith(color: faint),
+                                child: Text(option.hint!),
+                              ),
+                          ],
+                        ),
+                      ),
+                      AnimatedScale(
+                        scale: selected ? 1 : 0,
+                        duration: Motion.slow,
+                        curve: selected ? Curves.elasticOut : Motion.exit,
+                        child: Icon(Icons.check_rounded, color: fg),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
         ),
       ),
     );

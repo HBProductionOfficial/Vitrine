@@ -11,7 +11,9 @@ import '../../../core/links.dart';
 import '../../../core/router/routes.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/feedback.dart';
+import '../../../core/widgets/motion.dart';
 import '../../../core/widgets/page_body.dart';
+import '../../../core/widgets/pressable.dart';
 import '../../../core/widgets/skeleton.dart';
 import '../../../core/widgets/vitrine_mark.dart';
 import '../../auth/domain/user.dart';
@@ -76,46 +78,43 @@ class ProfileScreen extends ConsumerWidget {
       appBar: PageAppBar(
         maxWidth: 640,
         title: Text(l10n.profileTitle),
-        actions: [
-          IconButton(
-            tooltip: l10n.settings,
-            onPressed: () => context.push(Routes.settings),
-            icon: const Icon(Icons.settings_outlined),
-          ),
-        ],
+        actions: [_GearButton(tooltip: l10n.settings, onPressed: () => context.push(Routes.settings))],
       ),
       body: PageBody(
         maxWidth: 640,
         child: ListView(
           padding: const EdgeInsets.fromLTRB(Insets.page, Insets.sm, Insets.page, Insets.xxl),
           children: [
-            _IdentityCard(user: auth.user),
-            const SizedBox(height: Insets.md),
-            const _SavedCard(),
-            const SizedBox(height: Insets.xl),
-            SettingsGroup(title: l10n.contactDetails, children: const [_ContactDetails()]),
-            SettingsGroup(
-              title: l10n.account,
-              children: [
-                // Also reachable from the gear; a list of account things without it reads as an omission.
-                SettingsRow(
-                  icon: Icons.settings_outlined,
-                  label: l10n.settings,
-                  onTap: () => context.push(Routes.settings),
-                ),
-                SettingsRow(
-                  icon: Icons.info_outline_rounded,
-                  label: l10n.about,
-                  onTap: () => _showAbout(context, version),
-                ),
-                SettingsRow(
-                  icon: Icons.logout_rounded,
-                  label: l10n.signOut,
-                  color: p.danger,
-                  onTap: () => confirmSignOut(context, ref),
-                ),
-              ],
-            ),
+            for (final (i, section) in <Widget>[
+              _IdentityCard(user: auth.user),
+              const SizedBox(height: Insets.md),
+              const _SavedCard(),
+              const SizedBox(height: Insets.xl),
+              SettingsGroup(title: l10n.contactDetails, children: const [_ContactDetails()]),
+              SettingsGroup(
+                title: l10n.account,
+                children: [
+                  // Also reachable from the gear; a list of account things without it reads as an omission.
+                  SettingsRow(
+                    icon: Icons.settings_outlined,
+                    label: l10n.settings,
+                    onTap: () => context.push(Routes.settings),
+                  ),
+                  SettingsRow(
+                    icon: Icons.info_outline_rounded,
+                    label: l10n.about,
+                    onTap: () => _showAbout(context, version),
+                  ),
+                  SettingsRow(
+                    icon: Icons.logout_rounded,
+                    label: l10n.signOut,
+                    color: p.danger,
+                    onTap: () => confirmSignOut(context, ref),
+                  ),
+                ],
+              ),
+            ].indexed)
+              FadeSlideIn(delay: FadeSlideIn.stagger(i), child: section),
             if (version != null)
               Center(child: Text('${l10n.appTitle} $version', style: Theme.of(context).textTheme.bodySmall)),
           ],
@@ -136,11 +135,7 @@ class _IdentityCard extends StatelessWidget {
     final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.all(Insets.lg),
-      decoration: BoxDecoration(
-        color: p.surface,
-        borderRadius: BorderRadius.circular(Corners.card),
-        border: Border.all(color: p.border),
-      ),
+      decoration: BoxDecoration(color: p.surface, borderRadius: BorderRadius.circular(Corners.card)),
       child: Row(
         children: [
           CircleAvatar(
@@ -176,49 +171,76 @@ class _SavedCard extends ConsumerWidget {
     final theme = Theme.of(context);
     final saved = ref.watch(savedProvider);
 
-    return Material(
+    return Pressable(
       color: p.surface,
-      clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(Corners.card),
-        side: BorderSide(color: p.border),
-      ),
-      child: InkWell(
-        onTap: () => context.go(Routes.saved),
-        child: Padding(
-          padding: const EdgeInsets.all(Insets.lg),
-          child: Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(color: p.surfaceMuted, shape: BoxShape.circle),
-                child: Icon(Icons.favorite_border_rounded, size: 20, color: p.ink),
+      ripple: true,
+      scale: 0.98,
+      onTap: () => context.go(Routes.saved),
+      child: Padding(
+        padding: const EdgeInsets.all(Insets.lg),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(color: p.surfaceMuted, shape: BoxShape.circle),
+              child: Icon(Icons.favorite_border_rounded, size: 20, color: p.ink),
+            ),
+            const SizedBox(width: Insets.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(l10n.savedItems, style: theme.textTheme.titleSmall),
+                  Text(l10n.savedCount(saved.length), style: theme.textTheme.bodySmall),
+                ],
               ),
-              const SizedBox(width: Insets.md),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(l10n.savedItems, style: theme.textTheme.titleSmall),
-                    Text(l10n.savedCount(saved.length), style: theme.textTheme.bodySmall),
-                  ],
+            ),
+            // A glimpse of what's in there, newest first.
+            for (final product in saved.take(3))
+              Padding(
+                padding: const EdgeInsets.only(left: Insets.xs),
+                child: SizedBox.square(
+                  dimension: 36,
+                  child: ExcludeSemantics(child: ProductImage(url: product.thumbnail, padding: 3, radius: 8)),
                 ),
               ),
-              // A glimpse of what's in there, newest first.
-              for (final product in saved.take(3))
-                Padding(
-                  padding: const EdgeInsets.only(left: Insets.xs),
-                  child: SizedBox.square(
-                    dimension: 36,
-                    child: ExcludeSemantics(child: ProductImage(url: product.thumbnail, padding: 3, radius: 8)),
-                  ),
-                ),
-              const SizedBox(width: Insets.xs),
-              Icon(Icons.chevron_right_rounded, color: p.inkFaint),
-            ],
-          ),
+            const SizedBox(width: Insets.xs),
+            Icon(Icons.chevron_right_rounded, color: p.inkFaint),
+          ],
         ),
+      ),
+    );
+  }
+}
+
+/// The settings gear turns a little as it opens Settings.
+class _GearButton extends StatefulWidget {
+  const _GearButton({required this.tooltip, required this.onPressed});
+
+  final String tooltip;
+  final VoidCallback onPressed;
+
+  @override
+  State<_GearButton> createState() => _GearButtonState();
+}
+
+class _GearButtonState extends State<_GearButton> {
+  double _turns = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      tooltip: widget.tooltip,
+      onPressed: () {
+        setState(() => _turns += 0.25);
+        widget.onPressed();
+      },
+      icon: AnimatedRotation(
+        turns: _turns,
+        duration: reduceMotion(context) ? Duration.zero : const Duration(milliseconds: 500),
+        curve: Curves.easeOutBack,
+        child: const Icon(Icons.settings_outlined),
       ),
     );
   }

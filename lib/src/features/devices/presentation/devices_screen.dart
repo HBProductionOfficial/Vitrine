@@ -6,6 +6,7 @@ import '../../../core/design/tokens.dart';
 import '../../../core/errors.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/widgets/feedback.dart';
+import '../../../core/widgets/motion.dart';
 import '../../../core/widgets/notice.dart';
 import '../../../core/widgets/page_body.dart';
 import '../../../core/widgets/skeleton.dart';
@@ -25,6 +26,10 @@ class DevicesScreen extends ConsumerStatefulWidget {
 class _DevicesScreenState extends ConsumerState<DevicesScreen> {
   final _tileKeys = <String, GlobalKey>{};
   final _scroll = ScrollController();
+
+  /// Rows rise in on their first appearance only, not every time they're
+  /// scrolled back into view.
+  final _seen = <String>{};
 
   @override
   void dispose() {
@@ -139,16 +144,21 @@ class _DevicesScreenState extends ConsumerState<DevicesScreen> {
             if (state.fromCache && index == 0) {
               return Notice(message: l10n.showingSavedList, tone: NoticeTone.info);
             }
-            final device = state.devices[index - (state.fromCache ? 1 : 0)];
-            return DeviceTile(
-              key: _keyFor(device.id),
-              device: device,
-              expanded: state.expandedId == device.id,
-              updated: state.unseen.contains(device.id),
-              telemetry: state.telemetry[device.id],
-              onToggle: () => _toggle(device.id),
-              onEdit: () => _openForm(device: device),
-              onDelete: () => _delete(device),
+            final i = index - (state.fromCache ? 1 : 0);
+            final device = state.devices[i];
+            return FadeSlideIn(
+              enabled: _seen.add(device.id),
+              delay: FadeSlideIn.stagger(i),
+              child: DeviceTile(
+                key: _keyFor(device.id),
+                device: device,
+                expanded: state.expandedId == device.id,
+                updated: state.unseen.contains(device.id),
+                telemetry: state.telemetry[device.id],
+                onToggle: () => _toggle(device.id),
+                onEdit: () => _openForm(device: device),
+                onDelete: () => _delete(device),
+              ),
             );
           },
         ),
@@ -168,11 +178,14 @@ class _DevicesScreenState extends ConsumerState<DevicesScreen> {
         actions: [
           // In the app bar rather than a FAB, which would sit on top of the
           // expanded row that auto-scroll just brought into view.
-          TextButton.icon(
-            style: TextButton.styleFrom(textStyle: Theme.of(context).textTheme.labelLarge),
-            onPressed: () => _openForm(),
-            icon: const Icon(Icons.add_rounded, size: 20),
-            label: Text(l10n.addDevice),
+          ScaleOnPress(
+            builder: (states) => TextButton.icon(
+              statesController: states,
+              style: TextButton.styleFrom(textStyle: Theme.of(context).textTheme.labelLarge),
+              onPressed: () => _openForm(),
+              icon: const Icon(Icons.add_rounded, size: 20),
+              label: Text(l10n.addDevice),
+            ),
           ),
         ],
       ),

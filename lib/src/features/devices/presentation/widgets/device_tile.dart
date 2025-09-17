@@ -3,11 +3,12 @@ import 'package:vitrine/l10n/gen/app_localizations.dart';
 
 import '../../../../core/design/palette.dart';
 import '../../../../core/design/tokens.dart';
+import '../../../../core/widgets/motion.dart';
 import '../../domain/device.dart';
 import '../../domain/telemetry.dart';
 import 'flash_on_change.dart';
 
-class DeviceTile extends StatelessWidget {
+class DeviceTile extends StatefulWidget {
   const DeviceTile({
     super.key,
     required this.device,
@@ -30,79 +31,104 @@ class DeviceTile extends StatelessWidget {
   final VoidCallback? onDelete;
 
   @override
+  State<DeviceTile> createState() => _DeviceTileState();
+}
+
+class _DeviceTileState extends State<DeviceTile> {
+  bool _down = false;
+
+  @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final p = context.palette;
     final theme = Theme.of(context);
+    final device = widget.device;
+    final expanded = widget.expanded;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: p.surface,
-        borderRadius: BorderRadius.circular(Corners.card),
-        border: Border.all(color: expanded ? p.inkFaint : p.border),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        children: [
-          InkWell(
-            onTap: onToggle,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(Insets.lg, Insets.sm, Insets.xs, Insets.sm),
-              child: Row(
-                children: [
-                  Container(
-                    constraints: const BoxConstraints(minWidth: 44),
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(color: p.surfaceMuted, borderRadius: BorderRadius.circular(6)),
-                    child: Text(
-                      device.id.length > 6 ? '#${device.id.substring(device.id.length - 4)}' : device.id,
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.labelSmall,
-                      semanticsLabel: l10n.deviceId(device.id),
-                    ),
-                  ),
-                  const SizedBox(width: Insets.md),
-                  Expanded(
-                    child: Text(
-                      device.name,
-                      style: theme.textTheme.titleSmall,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  if (updated)
-                    Semantics(
-                      label: l10n.updatedSinceViewed,
-                      child: Container(
-                        width: 9,
-                        height: 9,
-                        margin: const EdgeInsets.only(left: Insets.sm),
-                        decoration: BoxDecoration(color: p.accent, shape: BoxShape.circle),
+    return PressScale(
+      down: _down,
+      scale: 0.985,
+      child: Container(
+        decoration: BoxDecoration(color: p.surface, borderRadius: BorderRadius.circular(Corners.card)),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          children: [
+            InkWell(
+              onTap: widget.onToggle,
+              onHighlightChanged: (down) => setState(() => _down = down),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(Insets.lg, Insets.sm, Insets.xs, Insets.sm),
+                child: Row(
+                  children: [
+                    Container(
+                      constraints: const BoxConstraints(minWidth: 44),
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(color: p.surfaceMuted, borderRadius: BorderRadius.circular(6)),
+                      child: Text(
+                        device.id.length > 6 ? '#${device.id.substring(device.id.length - 4)}' : device.id,
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.labelSmall,
+                        semanticsLabel: l10n.deviceId(device.id),
                       ),
                     ),
-                  IconButton(
-                    tooltip: expanded ? l10n.collapseDevice : l10n.expandDevice,
-                    onPressed: onToggle,
-                    icon: AnimatedRotation(
-                      turns: expanded ? 0.5 : 0,
-                      duration: Motion.base,
-                      curve: Motion.move,
-                      child: const Icon(Icons.keyboard_arrow_down_rounded),
+                    const SizedBox(width: Insets.md),
+                    Expanded(
+                      child: Text(
+                        device.name,
+                        style: theme.textTheme.titleSmall,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
-                  ),
-                ],
+                    AnimatedSwitcher(
+                      duration: Motion.slow,
+                      switchInCurve: Curves.elasticOut,
+                      switchOutCurve: Motion.exit,
+                      transitionBuilder: (child, animation) => ScaleTransition(scale: animation, child: child),
+                      child: widget.updated
+                          ? Semantics(
+                              key: const ValueKey('dot'),
+                              label: l10n.updatedSinceViewed,
+                              child: Container(
+                                width: 9,
+                                height: 9,
+                                margin: const EdgeInsets.only(left: Insets.sm),
+                                decoration: BoxDecoration(color: p.accent, shape: BoxShape.circle),
+                              ),
+                            )
+                          : const SizedBox.shrink(),
+                    ),
+                    IconButton(
+                      tooltip: expanded ? l10n.collapseDevice : l10n.expandDevice,
+                      onPressed: widget.onToggle,
+                      icon: AnimatedRotation(
+                        turns: expanded ? 0.5 : 0,
+                        duration: Motion.base,
+                        curve: Motion.move,
+                        child: const Icon(Icons.keyboard_arrow_down_rounded),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-          AnimatedSize(
-            duration: Motion.base,
-            curve: Motion.move,
-            alignment: Alignment.topCenter,
-            child: expanded
-                ? _Details(device: device, telemetry: telemetry, onEdit: onEdit, onDelete: onDelete)
-                : const SizedBox(width: double.infinity),
-          ),
-        ],
+            AnimatedSize(
+              duration: Motion.base,
+              curve: Motion.move,
+              alignment: Alignment.topCenter,
+              child: expanded
+                  ? FadeSlideIn(
+                      child: _Details(
+                        device: device,
+                        telemetry: widget.telemetry,
+                        onEdit: widget.onEdit,
+                        onDelete: widget.onDelete,
+                      ),
+                    )
+                  : const SizedBox(width: double.infinity),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -168,13 +194,14 @@ class _Details extends StatelessWidget {
                 const SizedBox(width: 6),
                 Expanded(child: Text(l10n.yourDevice, style: theme.textTheme.bodySmall)),
                 TextButton.icon(
+                  style: TextButton.styleFrom(textStyle: theme.textTheme.labelLarge),
                   onPressed: onEdit,
                   icon: const Icon(Icons.edit_outlined, size: 18),
                   label: Text(l10n.edit),
                 ),
                 TextButton.icon(
                   onPressed: onDelete,
-                  style: TextButton.styleFrom(foregroundColor: p.danger),
+                  style: TextButton.styleFrom(foregroundColor: p.danger, textStyle: theme.textTheme.labelLarge),
                   icon: const Icon(Icons.delete_outline_rounded, size: 18),
                   label: Text(l10n.delete),
                 ),

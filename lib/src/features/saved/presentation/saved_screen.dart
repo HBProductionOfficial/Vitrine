@@ -5,6 +5,7 @@ import 'package:vitrine/l10n/gen/app_localizations.dart';
 
 import '../../../core/design/tokens.dart';
 import '../../../core/router/routes.dart';
+import '../../../core/widgets/motion.dart';
 import '../../../core/widgets/page_body.dart';
 import '../../../core/widgets/state_views.dart';
 import '../../shop/presentation/widgets/product_card.dart';
@@ -36,11 +37,14 @@ class SavedScreen extends ConsumerWidget {
                           gridDelegate: productGridDelegate(context, constraints.crossAxisExtent),
                           delegate: SliverChildBuilderDelegate((context, i) {
                             final product = saved[i];
-                            return ProductCard(
-                              product: product,
-                              heroScope: Routes.saved,
-                              action: SaveButton(product: product),
-                              onTap: () => context.push(Routes.product(product.id, from: Routes.saved)),
+                            return FadeSlideIn(
+                              delay: FadeSlideIn.stagger(i),
+                              child: ProductCard(
+                                product: product,
+                                heroScope: Routes.saved,
+                                action: SaveButton(product: product),
+                                onTap: () => context.push(Routes.product(product.id, from: Routes.saved)),
+                              ),
                             );
                           }, childCount: saved.length),
                         ),

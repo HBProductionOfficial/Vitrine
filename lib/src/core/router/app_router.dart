@@ -13,6 +13,7 @@ import '../../features/devices/presentation/devices_screen.dart';
 import '../../features/profile/presentation/profile_screen.dart';
 import '../../features/saved/presentation/saved_screen.dart';
 import '../../features/settings/settings_screen.dart';
+import '../../features/shell/fade_through_branches.dart';
 import '../../features/shell/home_shell.dart';
 import '../../features/shop/presentation/product_screen.dart';
 import '../../features/shop/presentation/shop_screen.dart';
@@ -43,8 +44,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(path: Routes.signUp, builder: (_, _) => const SignUpScreen()),
       GoRoute(path: Routes.forgotPassword, builder: (_, _) => const ForgotPasswordScreen()),
-      StatefulShellRoute.indexedStack(
+      StatefulShellRoute(
         builder: (context, state, shell) => BiometricOffer(child: HomeShell(shell: shell)),
+        navigatorContainerBuilder: (context, shell, children) =>
+            FadeThroughBranches(currentIndex: shell.currentIndex, children: children),
         branches: [
           StatefulShellBranch(
             routes: [

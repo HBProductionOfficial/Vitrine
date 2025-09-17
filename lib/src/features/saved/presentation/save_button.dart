@@ -3,9 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:vitrine/l10n/gen/app_localizations.dart';
 
 import '../../../core/design/palette.dart';
+import '../../../core/design/tokens.dart';
+import '../../../core/widgets/motion.dart';
 import '../../shop/domain/product.dart';
 import 'saved_controller.dart';
 
+/// Heart toggle. Saving pops the heart; un-saving just swaps it back.
 class SaveButton extends ConsumerWidget {
   const SaveButton({super.key, required this.product});
 
@@ -20,8 +23,21 @@ class SaveButton extends ConsumerWidget {
       tooltip: saved ? l10n.unsaveProduct : l10n.saveProduct,
       isSelected: saved,
       onPressed: () => ref.read(savedProvider.notifier).toggle(product),
-      icon: Icon(Icons.favorite_border_rounded, color: p.inkSoft),
-      selectedIcon: Icon(Icons.favorite_rounded, color: p.ink),
+      icon: BumpOnChange(
+        // Only bump on the way in.
+        value: saved ? true : null,
+        amount: 0.4,
+        child: AnimatedSwitcher(
+          duration: reduceMotion(context) ? Duration.zero : Motion.base,
+          switchInCurve: Curves.easeOutBack,
+          transitionBuilder: (child, animation) => ScaleTransition(scale: animation, child: child),
+          child: Icon(
+            saved ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+            key: ValueKey(saved),
+            color: saved ? p.ink : p.inkSoft,
+          ),
+        ),
+      ),
     );
   }
 }

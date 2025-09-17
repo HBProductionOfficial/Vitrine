@@ -39,11 +39,11 @@ class Palette extends ThemeExtension<Palette> {
   static const light = Palette(
     background: Color(0xFFF6F3EE),
     surface: Color(0xFFFFFFFF),
-    surfaceMuted: Color(0xFFEFEAE3),
+    surfaceMuted: Color(0xFFE9E3D9),
     border: Color(0xFFE2DBD1),
     ink: Color(0xFF1D1B18),
     inkSoft: Color(0xFF57524B),
-    inkFaint: Color(0xFF6C665D),
+    inkFaint: Color(0xFF67615A),
     onInk: Color(0xFFFFFFFF),
     accent: Color(0xFFA8411F),
     accentSoft: Color(0xFFF9EBE4),
@@ -54,8 +54,8 @@ class Palette extends ThemeExtension<Palette> {
 
   static const dark = Palette(
     background: Color(0xFF141210),
-    surface: Color(0xFF1E1B18),
-    surfaceMuted: Color(0xFF2A2622),
+    surface: Color(0xFF221F1B),
+    surfaceMuted: Color(0xFF2E2A26),
     border: Color(0xFF39342E),
     ink: Color(0xFFF2EEE8),
     inkSoft: Color(0xFFBDB6AC),

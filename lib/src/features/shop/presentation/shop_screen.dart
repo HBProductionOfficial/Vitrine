@@ -6,13 +6,15 @@ import 'package:vitrine/l10n/gen/app_localizations.dart';
 import '../../../core/design/tokens.dart';
 import '../../../core/errors.dart';
 import '../../../core/router/routes.dart';
-import '../../../core/widgets/feedback.dart';
+import '../../../core/widgets/motion.dart';
 import '../../../core/widgets/page_body.dart';
 import '../../../core/widgets/skeleton.dart';
 import '../../../core/widgets/state_views.dart';
 import '../../saved/presentation/save_button.dart';
+import '../../settings/widgets/settings_rows.dart';
 import '../domain/product.dart';
 import 'shop_controller.dart';
+import 'widgets/filter_pill.dart';
 import 'widgets/product_card.dart';
 
 class ShopScreen extends ConsumerStatefulWidget {
@@ -25,6 +27,7 @@ class ShopScreen extends ConsumerStatefulWidget {
 class _ShopScreenState extends ConsumerState<ShopScreen> {
   final _scroll = ScrollController();
   final _search = TextEditingController();
+  final _seen = <int>{};
 
   @override
   void initState() {
@@ -54,9 +57,22 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
   Future<void> _pickSort() async {
     // Otherwise the search field gets focus back, keyboard and all, when the sheet closes.
     FocusScope.of(context).unfocus();
-    final current = ref.read(shopControllerProvider).sort;
-    final picked = await showAppSheet<ProductSort>(context, builder: (_) => _SortSheet(current: current));
-    if (picked != null) ref.read(shopControllerProvider.notifier).setSort(picked);
+    final l10n = AppLocalizations.of(context);
+    final picked = await showOptionSheet<ProductSort>(
+      context,
+      title: l10n.sortButton,
+      current: ref.read(shopControllerProvider).sort,
+      options: [
+        for (final (sort, icon) in [
+          (ProductSort.recommended, Icons.storefront_outlined),
+          (ProductSort.priceLow, Icons.south_rounded),
+          (ProductSort.priceHigh, Icons.north_rounded),
+          (ProductSort.rating, Icons.star_outline_rounded),
+        ])
+          SheetOption(value: sort, label: sortLabel(sort, l10n), badgeIcon: icon),
+      ],
+    );
+    if (picked != null) ref.read(shopControllerProvider.notifier).setSort(picked.value);
   }
 
   @override
@@ -68,6 +84,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
     // New results start from the top, not wherever the old list was scrolled to.
     ref.listen(shopControllerProvider.select((s) => (s.query, s.category, s.sort)), (_, _) {
       if (_scroll.hasClients) _scroll.jumpTo(0);
+      _seen.clear();
     });
 
     return Scaffold(
@@ -98,11 +115,14 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                       ),
                       Padding(
                         padding: EdgeInsets.only(right: gutter - Insets.sm),
-                        child: TextButton.icon(
-                          style: TextButton.styleFrom(textStyle: Theme.of(context).textTheme.labelLarge),
-                          onPressed: _pickSort,
-                          icon: const Icon(Icons.swap_vert_rounded, size: 20),
-                          label: Text(sortLabel(state.sort, l10n)),
+                        child: ScaleOnPress(
+                          builder: (states) => TextButton.icon(
+                            statesController: states,
+                            style: TextButton.styleFrom(textStyle: Theme.of(context).textTheme.labelLarge),
+                            onPressed: _pickSort,
+                            icon: const Icon(Icons.swap_vert_rounded, size: 20),
+                            label: RollingText(sortLabel(state.sort, l10n), alignment: Alignment.centerLeft),
+                          ),
                         ),
                       ),
                     ],
@@ -163,10 +183,16 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
             gridDelegate: productGridDelegate(context, constraints.crossAxisExtent),
             delegate: SliverChildBuilderDelegate((context, i) {
               final product = state.products[i];
-              return ProductCard(
-                product: product,
-                action: SaveButton(product: product),
-                onTap: () => context.push(Routes.product(product.id)),
+              return FadeSlideIn(
+                // Each product rises in the first time it shows, a page at a
+                // time, and stays put when scrolled back to.
+                enabled: _seen.add(product.id),
+                delay: FadeSlideIn.stagger(i % ShopController.pageSize),
+                child: ProductCard(
+                  product: product,
+                  action: SaveButton(product: product),
+                  onTap: () => context.push(Routes.product(product.id)),
+                ),
               );
             }, childCount: state.products.length),
           ),
@@ -240,12 +266,12 @@ class _Filters extends ConsumerWidget implements PreferredSizeWidget {
               separatorBuilder: (_, _) => const SizedBox(width: Insets.sm),
               itemBuilder: (context, i) {
                 final slug = i == 0 ? null : categories[i - 1].slug;
-                return Center(
-                  child: ChoiceChip(
-                    label: Text(i == 0 ? l10n.allCategories : categories[i - 1].name),
+                return Align(
+                  alignment: Alignment.topCenter,
+                  child: FilterPill(
+                    label: i == 0 ? l10n.allCategories : categories[i - 1].name,
                     selected: selected == slug,
-                    showCheckmark: false,
-                    onSelected: (_) {
+                    onTap: () {
                       FocusScope.of(context).unfocus();
                       controller.selectCategory(slug);
                     },
@@ -317,39 +343,6 @@ class _GridSkeleton extends StatelessWidget {
           ),
         );
       },
-    );
-  }
-}
-
-class _SortSheet extends StatelessWidget {
-  const _SortSheet({required this.current});
-
-  final ProductSort current;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    return SafeArea(
-      top: false,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(Insets.xl, 0, Insets.xl, Insets.sm),
-            child: Text(l10n.sortButton, style: Theme.of(context).textTheme.headlineSmall),
-          ),
-          for (final sort in ProductSort.values)
-            ListTile(
-              contentPadding: const EdgeInsets.symmetric(horizontal: Insets.xl),
-              title: Text(sortLabel(sort, l10n)),
-              selected: sort == current,
-              trailing: sort == current ? const Icon(Icons.check_rounded) : null,
-              onTap: () => Navigator.pop(context, sort),
-            ),
-          const SizedBox(height: Insets.md),
-        ],
-      ),
     );
   }
 }

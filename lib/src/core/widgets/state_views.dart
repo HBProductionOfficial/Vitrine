@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:vitrine/l10n/gen/app_localizations.dart';
 import '../design/palette.dart';
 import '../design/tokens.dart';
+import 'motion.dart';
 
 /// Centered message for empty and error screens. [action] is the one thing
 /// the user can do to fix it.
@@ -61,10 +62,13 @@ class ErrorView extends StatelessWidget {
       icon: Icons.cloud_off_rounded,
       tone: context.palette.danger,
       title: message,
-      action: OutlinedButton.icon(
-        onPressed: onRetry,
-        icon: const Icon(Icons.refresh_rounded, size: 20),
-        label: Text(l10n.retry),
+      action: ScaleOnPress(
+        builder: (states) => OutlinedButton.icon(
+          statesController: states,
+          onPressed: onRetry,
+          icon: const Icon(Icons.refresh_rounded, size: 20),
+          label: Text(l10n.retry),
+        ),
       ),
     );
   }

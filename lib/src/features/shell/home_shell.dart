@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:vitrine/l10n/gen/app_localizations.dart';
 
 import '../../core/design/tokens.dart';
+import '../../core/widgets/motion.dart';
 import '../../core/widgets/vitrine_mark.dart';
 import '../cart/presentation/cart_controller.dart';
 
@@ -31,8 +32,11 @@ class HomeShell extends ConsumerWidget {
     ];
 
     Widget icon(int i, IconData data) {
-      if (i != 2 || cartCount == 0) return Icon(data);
-      return Badge.count(count: cartCount, child: Icon(data));
+      if (i != 2) return Icon(data);
+      return BumpOnChange(
+        value: cartCount,
+        child: cartCount == 0 ? Icon(data) : Badge.count(count: cartCount, child: Icon(data)),
+      );
     }
 
     if (wide) {
@@ -61,12 +65,19 @@ class HomeShell extends ConsumerWidget {
 
     return Scaffold(
       body: shell,
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: shell.currentIndex,
-        onDestinationSelected: _select,
-        destinations: [
-          for (final (i, d) in destinations.indexed)
-            NavigationDestination(icon: icon(i, d.$1), selectedIcon: icon(i, d.$2), label: d.$3),
+      // A hairline keeps the bar apart from content scrolling under it.
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Divider(),
+          NavigationBar(
+            selectedIndex: shell.currentIndex,
+            onDestinationSelected: _select,
+            destinations: [
+              for (final (i, d) in destinations.indexed)
+                NavigationDestination(icon: icon(i, d.$1), selectedIcon: icon(i, d.$2), label: d.$3),
+            ],
+          ),
         ],
       ),
     );

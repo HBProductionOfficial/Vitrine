@@ -202,10 +202,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                         controlAffinity: ListTileControlAffinity.leading,
                         contentPadding: EdgeInsets.zero,
                       ),
-                      if (_error != null) ...[
-                        const SizedBox(height: Insets.md),
-                        Notice(message: describeError(_error!, l10n)),
-                      ],
+                      NoticeSlot(message: _error == null ? null : describeError(_error!, l10n)),
                       const SizedBox(height: Insets.lg),
                       PrimaryButton(label: l10n.signUpButton, loading: _submitting, onPressed: _submit),
                       const SizedBox(height: Insets.lg),

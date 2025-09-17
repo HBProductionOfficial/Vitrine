@@ -148,7 +148,7 @@ class _DeviceFormSheetState extends State<DeviceFormSheet> {
               label: Text(l10n.addField),
             ),
           ),
-          if (_error != null) ...[const SizedBox(height: Insets.sm), Notice(message: describeError(_error!, l10n))],
+          NoticeSlot(message: _error == null ? null : describeError(_error!, l10n), gap: Insets.sm),
           const SizedBox(height: Insets.lg),
           PrimaryButton(label: l10n.save, loading: _saving, onPressed: _submit),
         ],

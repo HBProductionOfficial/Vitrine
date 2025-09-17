@@ -175,10 +175,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           ),
                         ],
                       ),
-                      if (_error != null) ...[
-                        const SizedBox(height: Insets.md),
-                        Notice(message: describeError(_error!, l10n)),
-                      ],
+                      NoticeSlot(message: _error == null ? null : describeError(_error!, l10n)),
                       const SizedBox(height: Insets.lg),
                       PrimaryButton(label: l10n.signInButton, loading: _submitting, onPressed: _submit),
                       if (kind != BiometricKind.none) ...[

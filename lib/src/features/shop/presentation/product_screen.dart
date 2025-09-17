@@ -14,10 +14,13 @@ import '../../../core/format.dart';
 import '../../../core/router/routes.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/feedback.dart';
+import '../../../core/widgets/motion.dart';
 import '../../../core/widgets/page_body.dart';
 import '../../../core/widgets/skeleton.dart';
 import '../../../core/widgets/state_views.dart';
 import '../../cart/presentation/cart_controller.dart';
+import '../../reviews/my_reviews_controller.dart';
+import '../../reviews/review_sheet.dart';
 import '../../saved/presentation/save_button.dart';
 import '../../saved/presentation/saved_controller.dart';
 import '../data/dummy_json_products_repository.dart';
@@ -227,6 +230,8 @@ class _Details extends ConsumerWidget {
         ref.watch(categoriesProvider).value?.where((c) => c.slug == product.category).firstOrNull?.name ??
         product.category;
     final kicker = [?product.brand, if (categoryName.isNotEmpty) categoryName].join('  ·  ');
+    final mine = ref.watch(myReviewsProvider.select((all) => all[product.id]));
+    final reviewCount = product.reviews.length + (mine == null ? 0 : 1);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -240,8 +245,8 @@ class _Details extends ConsumerWidget {
             _Stars(rating: product.rating),
             const SizedBox(width: 6),
             Text(product.rating.toStringAsFixed(1), style: theme.textTheme.labelMedium),
-            if (!loading || product.reviews.isNotEmpty)
-              Text('  ·  ${l10n.reviewsCount(product.reviews.length)}', style: theme.textTheme.bodySmall),
+            if (!loading || reviewCount > 0)
+              Text('  ·  ${l10n.reviewsCount(reviewCount)}', style: theme.textTheme.bodySmall),
           ],
         ),
         const SizedBox(height: Insets.lg),
@@ -296,9 +301,33 @@ class _Details extends ConsumerWidget {
         _Fact(icon: Icons.verified_outlined, label: l10n.warrantyInfo, value: product.warranty),
         _Fact(icon: Icons.undo_rounded, label: l10n.returnsInfo, value: product.returnPolicy),
         const SizedBox(height: Insets.xl),
-        Text(l10n.reviewsTitle(product.reviews.length), style: theme.textTheme.titleMedium),
-        const SizedBox(height: Insets.md),
-        if (product.reviews.isEmpty && !loading)
+        Row(
+          children: [
+            Expanded(child: Text(l10n.reviewsTitle(reviewCount), style: theme.textTheme.titleMedium)),
+            if (mine == null)
+              TextButton.icon(
+                style: TextButton.styleFrom(textStyle: theme.textTheme.labelLarge),
+                onPressed: () => _openReviewSheet(context, product),
+                icon: const Icon(Icons.rate_review_outlined, size: 20),
+                label: Text(l10n.writeReview),
+              ),
+          ],
+        ),
+        const SizedBox(height: Insets.sm),
+        AnimatedSize(
+          duration: Motion.slow,
+          curve: Motion.move,
+          alignment: Alignment.topCenter,
+          child: mine == null
+              ? const SizedBox(width: double.infinity)
+              : Padding(
+                  padding: const EdgeInsets.only(bottom: Insets.sm),
+                  child: FadeSlideIn(
+                    child: _ReviewTile(review: mine, product: product, mine: true),
+                  ),
+                ),
+        ),
+        if (reviewCount == 0 && !loading)
           Text(l10n.noReviews, style: theme.textTheme.bodyMedium)
         else
           for (final review in product.reviews) ...[_ReviewTile(review: review), const SizedBox(height: Insets.sm)],
@@ -392,30 +421,53 @@ class _Stars extends StatelessWidget {
   }
 }
 
-class _ReviewTile extends StatelessWidget {
-  const _ReviewTile({required this.review});
+class _ReviewTile extends ConsumerWidget {
+  const _ReviewTile({required this.review, this.product, this.mine = false});
 
   final Review review;
 
+  /// Needed for your own review, which can be edited and deleted.
+  final Product? product;
+  final bool mine;
+
+  void _delete(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final reviews = ref.read(myReviewsProvider.notifier);
+    final id = product!.id;
+    final removed = reviews.remove(id);
+    if (removed == null) return;
+    showSnack(
+      context,
+      l10n.reviewDeleted,
+      action: SnackBarAction(label: l10n.undo, onPressed: () => reviews.restore(id, removed)),
+    );
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final p = context.palette;
     final theme = Theme.of(context);
     final locale = Localizations.localeOf(context).toLanguageTag();
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(Insets.lg),
-      decoration: BoxDecoration(
-        color: p.surface,
-        borderRadius: BorderRadius.circular(Corners.card),
-        border: Border.all(color: p.border),
-      ),
+      padding: EdgeInsets.fromLTRB(Insets.lg, Insets.lg, Insets.lg, mine ? Insets.xs : Insets.lg),
+      decoration: BoxDecoration(color: p.surface, borderRadius: BorderRadius.circular(Corners.card)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Expanded(child: Text(review.reviewer, style: theme.textTheme.titleSmall)),
+              Flexible(child: Text(review.reviewer, style: theme.textTheme.titleSmall)),
+              if (mine) ...[
+                const SizedBox(width: Insets.sm),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(color: p.ink, borderRadius: BorderRadius.circular(6)),
+                  child: Text(l10n.reviewYou, style: theme.textTheme.labelSmall?.copyWith(color: p.onInk)),
+                ),
+              ],
+              const Spacer(),
               _Stars(rating: review.rating.toDouble(), size: 15),
             ],
           ),
@@ -423,21 +475,67 @@ class _ReviewTile extends StatelessWidget {
             Text(DateFormat.yMMMd(locale).format(review.date!.toLocal()), style: theme.textTheme.bodySmall),
           const SizedBox(height: Insets.sm),
           Text(review.comment, style: theme.textTheme.bodyMedium?.copyWith(color: p.ink)),
+          if (mine)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton.icon(
+                  style: TextButton.styleFrom(textStyle: theme.textTheme.labelLarge),
+                  onPressed: () => _openReviewSheet(context, product!, existing: review),
+                  icon: const Icon(Icons.edit_outlined, size: 18),
+                  label: Text(l10n.edit),
+                ),
+                TextButton.icon(
+                  onPressed: () => _delete(context, ref),
+                  style: TextButton.styleFrom(foregroundColor: p.danger, textStyle: theme.textTheme.labelLarge),
+                  icon: const Icon(Icons.delete_outline_rounded, size: 18),
+                  label: Text(l10n.delete),
+                ),
+              ],
+            ),
         ],
       ),
     );
   }
 }
 
-class _BuyBar extends ConsumerWidget {
+Future<void> _openReviewSheet(BuildContext context, Product product, {Review? existing}) async {
+  final message = AppLocalizations.of(context).reviewSaved;
+  final saved = await showAppSheet<bool>(
+    context,
+    builder: (_) => ReviewSheet(product: product, existing: existing),
+  );
+  if ((saved ?? false) && context.mounted) showSnack(context, message);
+}
+
+class _BuyBar extends ConsumerStatefulWidget {
   const _BuyBar({required this.product});
 
   final Product product;
 
-  void _add(BuildContext context, WidgetRef ref) {
+  @override
+  ConsumerState<_BuyBar> createState() => _BuyBarState();
+}
+
+class _BuyBarState extends ConsumerState<_BuyBar> {
+  Timer? _confirm;
+
+  @override
+  void dispose() {
+    _confirm?.cancel();
+    super.dispose();
+  }
+
+  void _add() {
     final l10n = AppLocalizations.of(context);
     final router = GoRouter.of(context);
-    if (!ref.read(cartProvider.notifier).add(product)) return;
+    if (!ref.read(cartProvider.notifier).add(widget.product)) return;
+    // The button says "Added" with a tick for a moment, then goes back.
+    _confirm?.cancel();
+    _confirm = Timer(const Duration(milliseconds: 1400), () {
+      if (mounted) setState(() => _confirm = null);
+    });
+    setState(() {});
     showSnack(
       context,
       l10n.addedToCart,
@@ -446,38 +544,53 @@ class _BuyBar extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final p = context.palette;
+    final product = widget.product;
     final inCart = ref.watch(cartProvider.select((c) => c.quantityOf(product.id)));
     final canAdd = inCart < ref.read(cartProvider.notifier).limitFor(product);
+    final justAdded = _confirm != null;
 
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: p.background,
-        border: Border(top: BorderSide(color: p.border)),
-      ),
-      child: PageBody(
-        maxWidth: 760,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(Insets.page, Insets.md, Insets.page, Insets.md),
-          child: Row(
-            children: [
-              if (inCart > 0) ...[
-                Text(l10n.inCartCount(inCart), style: Theme.of(context).textTheme.labelMedium),
-                const SizedBox(width: Insets.lg),
-              ],
-              Expanded(
-                child: PrimaryButton(
-                  accent: true,
-                  icon: Icons.add_shopping_cart_rounded,
-                  label: product.inStock ? l10n.addToCart : l10n.outOfStock,
-                  onPressed: canAdd ? () => _add(context, ref) : null,
-                ),
+    return ColoredBox(
+      color: p.surface,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Divider(),
+          PageBody(
+            maxWidth: 760,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(Insets.page, Insets.md, Insets.page, Insets.md),
+              child: Row(
+                children: [
+                  AnimatedSize(
+                    duration: Motion.base,
+                    curve: Motion.move,
+                    child: inCart > 0
+                        ? Padding(
+                            padding: const EdgeInsets.only(right: Insets.lg),
+                            child: RollingText(
+                              l10n.inCartCount(inCart),
+                              style: Theme.of(context).textTheme.labelMedium,
+                              alignment: Alignment.centerLeft,
+                            ),
+                          )
+                        : const SizedBox.shrink(),
+                  ),
+                  Expanded(
+                    child: PrimaryButton(
+                      accent: true,
+                      icon: justAdded ? Icons.check_rounded : Icons.add_shopping_cart_rounded,
+                      label: justAdded ? l10n.addedToCart : (product.inStock ? l10n.addToCart : l10n.outOfStock),
+                      onPressed: canAdd ? _add : null,
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

@@ -61,9 +61,11 @@ abstract final class AppTheme {
 
     final text = _textTheme(p);
 
+    // Fields, buttons and chips are told apart by fill alone; a box with a
+    // fill and a different-coloured outline reads as clutter.
     final inputBorder = OutlineInputBorder(
       borderRadius: BorderRadius.circular(Corners.input),
-      borderSide: BorderSide(color: p.border),
+      borderSide: BorderSide.none,
     );
 
     return ThemeData(
@@ -94,14 +96,14 @@ abstract final class AppTheme {
       dividerTheme: DividerThemeData(color: p.border, thickness: 1, space: 1),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: p.surface,
+        fillColor: fieldFill(p, onSurface: false),
         contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
         hintStyle: text.bodyMedium?.copyWith(color: p.inkFaint),
         border: inputBorder,
         enabledBorder: inputBorder,
-        focusedBorder: inputBorder.copyWith(borderSide: BorderSide(color: p.ink, width: 1.6)),
-        errorBorder: inputBorder.copyWith(borderSide: BorderSide(color: p.danger)),
-        focusedErrorBorder: inputBorder.copyWith(borderSide: BorderSide(color: p.danger, width: 1.6)),
+        focusedBorder: inputBorder,
+        errorBorder: inputBorder,
+        focusedErrorBorder: inputBorder,
         errorStyle: text.bodySmall?.copyWith(color: p.danger),
         prefixIconColor: p.inkFaint,
         suffixIconColor: p.inkSoft,
@@ -117,11 +119,15 @@ abstract final class AppTheme {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Corners.button)),
         ),
       ),
+      // Secondary buttons are tonal: a muted fill, no outline.
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: p.ink,
+          backgroundColor: p.surfaceMuted,
+          disabledForegroundColor: p.inkFaint,
+          disabledBackgroundColor: p.surfaceMuted,
           minimumSize: const Size(64, 52),
-          side: BorderSide(color: p.border, width: 1.2),
+          side: BorderSide.none,
           textStyle: text.labelLarge,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Corners.button)),
         ),
@@ -136,7 +142,7 @@ abstract final class AppTheme {
       chipTheme: ChipThemeData(
         backgroundColor: p.surface,
         selectedColor: p.ink,
-        side: BorderSide(color: p.border),
+        side: BorderSide.none,
         labelStyle: text.labelMedium?.copyWith(color: p.ink),
         secondaryLabelStyle: text.labelMedium?.copyWith(color: p.onInk),
         checkmarkColor: p.onInk,
@@ -195,7 +201,7 @@ abstract final class AppTheme {
         trackColor: WidgetStateProperty.resolveWith(
           (states) => states.contains(WidgetState.selected) ? p.ink : p.surfaceMuted,
         ),
-        trackOutlineColor: WidgetStateProperty.all(p.border),
+        trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
       ),
       checkboxTheme: CheckboxThemeData(
         fillColor: WidgetStateProperty.resolveWith(
@@ -208,16 +214,17 @@ abstract final class AppTheme {
       progressIndicatorTheme: ProgressIndicatorThemeData(color: p.ink, linearTrackColor: p.surfaceMuted),
       // The cart count, in the same colour as the add-to-cart button.
       badgeTheme: BadgeThemeData(backgroundColor: p.accent, textColor: Palette.readableOn(p.accent)),
-      segmentedButtonTheme: SegmentedButtonThemeData(
-        style: SegmentedButton.styleFrom(
-          backgroundColor: p.surface,
-          foregroundColor: p.inkSoft,
-          selectedBackgroundColor: p.ink,
-          selectedForegroundColor: p.onInk,
-          side: BorderSide(color: p.border),
-          textStyle: text.labelMedium,
-        ),
-      ),
     );
   }
+}
+
+/// Text field fill. A field sits on the page or on a sheet; [onSurface] picks
+/// the tone that still shows against a sheet. Focus and errors change the
+/// fill rather than adding an outline.
+WidgetStateColor fieldFill(Palette p, {required bool onSurface}) {
+  return WidgetStateColor.resolveWith((states) {
+    if (states.contains(WidgetState.error)) return p.dangerSoft;
+    if (states.contains(WidgetState.focused)) return onSurface ? p.border : p.surfaceMuted;
+    return onSurface ? p.surfaceMuted : p.surface;
+  });
 }
