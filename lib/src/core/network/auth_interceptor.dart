@@ -6,7 +6,7 @@ import 'token_holder.dart';
 /// On a 401 the interceptor refreshes the access token once and replays the
 /// request; if the refresh fails too, [onSessionExpired] signs the user out.
 class AuthInterceptor extends QueuedInterceptor {
-  AuthInterceptor({required this.tokens, required this.plainClient, required this.onSessionExpired});
+  AuthInterceptor({required this.tokens, required this.plainClient, required this.onSessionExpired, this.onRefreshed});
 
   static const requiresAuth = 'requiresAuth';
   static const _retried = 'retriedAfterRefresh';
@@ -18,6 +18,9 @@ class AuthInterceptor extends QueuedInterceptor {
   /// failed too: its error would queue behind the onError still waiting on it.
   final Dio plainClient;
   final void Function() onSessionExpired;
+
+  /// Told about each new refresh token, so a saved session can keep up.
+  final void Function(String refreshToken)? onRefreshed;
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
@@ -46,6 +49,7 @@ class AuthInterceptor extends QueuedInterceptor {
       );
       final body = response.data!;
       tokens.update(access: body['accessToken'] as String, refresh: body['refreshToken'] as String);
+      onRefreshed?.call(tokens.refreshToken!);
     } on DioException {
       tokens.clear();
       onSessionExpired();

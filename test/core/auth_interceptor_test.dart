@@ -8,17 +8,26 @@ import '../helpers/fake_http.dart';
 void main() {
   late TokenHolder tokens;
   late int expiredCalls;
+  late List<String> savedRefresh;
 
   setUp(() {
     tokens = TokenHolder()..update(access: 'old', refresh: 'refresh-1');
     expiredCalls = 0;
+    savedRefresh = [];
   });
 
   /// Both clients talk to the same fake server, like the real ones do.
   Dio clientWith(FakeResponse Function(RequestOptions request) server) {
     final (dio, _) = fakeDio(server);
     final (plain, _) = fakeDio(server);
-    dio.interceptors.add(AuthInterceptor(tokens: tokens, plainClient: plain, onSessionExpired: () => expiredCalls++));
+    dio.interceptors.add(
+      AuthInterceptor(
+        tokens: tokens,
+        plainClient: plain,
+        onSessionExpired: () => expiredCalls++,
+        onRefreshed: savedRefresh.add,
+      ),
+    );
     return dio;
   }
 
@@ -54,6 +63,7 @@ void main() {
     expect(response.data, {'id': 1});
     expect(tokens.accessToken, 'new');
     expect(tokens.refreshToken, 'refresh-2');
+    expect(savedRefresh, ['refresh-2']);
     expect(expiredCalls, 0);
   });
 

@@ -228,6 +228,14 @@ class AuthController extends Notifier<AuthState> {
     state = _signedOut();
   }
 
+  /// Called by the HTTP layer after it refreshed the session. A saved session
+  /// has to follow, or the next launch would start from the old token.
+  void onTokensRefreshed(String refreshToken) {
+    if (_rememberMe || _biometricEnabled) {
+      unawaited(ref.read(secureStoreProvider).write(refreshTokenKey, refreshToken));
+    }
+  }
+
   /// Called by the HTTP layer when the refresh token stops working.
   void onSessionExpired() {
     final current = state;

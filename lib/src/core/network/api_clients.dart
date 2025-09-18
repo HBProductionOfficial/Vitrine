@@ -26,6 +26,7 @@ final dummyJsonClientProvider = Provider<Dio>((ref) {
       tokens: ref.watch(tokenHolderProvider),
       plainClient: Dio(_options(ApiUrls.dummyJson)),
       onSessionExpired: () => ref.read(authControllerProvider.notifier).onSessionExpired(),
+      onRefreshed: (refresh) => ref.read(authControllerProvider.notifier).onTokensRefreshed(refresh),
     ),
   );
   ref.onDispose(dio.close);

@@ -188,6 +188,30 @@ void main() {
     });
   });
 
+  group('a refreshed session', () {
+    test('replaces the saved one when the user asked to stay signed in', () async {
+      final container = await start();
+      final auth = container.read(authControllerProvider.notifier);
+      await auth.login('emilys', 'emilyspass', rememberMe: true);
+
+      auth.onTokensRefreshed('refresh-9');
+      await pumpEventQueue();
+
+      expect(secure.values[AuthController.refreshTokenKey], 'refresh-9');
+    });
+
+    test('is not written down when nothing should be saved', () async {
+      final container = await start();
+      final auth = container.read(authControllerProvider.notifier);
+      await auth.login('emilys', 'emilyspass', rememberMe: false);
+
+      auth.onTokensRefreshed('refresh-9');
+      await pumpEventQueue();
+
+      expect(secure.values, isEmpty);
+    });
+  });
+
   test('sign out wipes the saved session and biometric setting', () async {
     when(() => biometrics.authenticate(any())).thenAnswer((_) async {});
     final container = await start();
