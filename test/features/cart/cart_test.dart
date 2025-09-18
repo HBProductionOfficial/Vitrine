@@ -85,6 +85,21 @@ void main() {
       expect(container.read(cartProvider).quantityOf(_plenty.id), CartController.maxPerItem);
     });
 
+    test('adds a chosen amount, but never past the limit', () {
+      final container = containerFor(1);
+      final cart = container.read(cartProvider.notifier);
+
+      expect(cart.add(_mascara, quantity: 3), isTrue);
+      expect(container.read(cartProvider).quantityOf(_mascara.id), 3);
+
+      expect(cart.add(_mascara, quantity: 20), isTrue);
+      expect(container.read(cartProvider).quantityOf(_mascara.id), CartController.maxPerItem);
+
+      expect(cart.add(_mascara, quantity: 1), isFalse);
+      expect(cart.add(_lastOne, quantity: 4), isTrue);
+      expect(container.read(cartProvider).quantityOf(_lastOne.id), 1);
+    });
+
     test('a removed line can be put back where it was', () {
       final container = containerFor(1);
       final cart = container.read(cartProvider.notifier)

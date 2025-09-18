@@ -8,6 +8,7 @@ import '../../../core/router/routes.dart';
 import '../../../core/widgets/motion.dart';
 import '../../../core/widgets/page_body.dart';
 import '../../../core/widgets/state_views.dart';
+import '../../cart/presentation/widgets/quick_add_button.dart';
 import '../../shop/presentation/widgets/product_card.dart';
 import 'save_button.dart';
 import 'saved_controller.dart';
@@ -43,6 +44,7 @@ class SavedScreen extends ConsumerWidget {
                                 product: product,
                                 heroScope: Routes.saved,
                                 action: SaveButton(product: product),
+                                cartButton: QuickAddButton(product: product),
                                 onTap: () => context.push(Routes.product(product.id, from: Routes.saved)),
                               ),
                             );

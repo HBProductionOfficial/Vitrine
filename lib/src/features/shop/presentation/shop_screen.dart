@@ -10,6 +10,7 @@ import '../../../core/widgets/motion.dart';
 import '../../../core/widgets/page_body.dart';
 import '../../../core/widgets/skeleton.dart';
 import '../../../core/widgets/state_views.dart';
+import '../../cart/presentation/widgets/quick_add_button.dart';
 import '../../saved/presentation/save_button.dart';
 import '../../settings/widgets/settings_rows.dart';
 import '../domain/product.dart';
@@ -191,6 +192,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                 child: ProductCard(
                   product: product,
                   action: SaveButton(product: product),
+                  cartButton: QuickAddButton(product: product),
                   onTap: () => context.push(Routes.product(product.id)),
                 ),
               );

@@ -19,7 +19,7 @@ In October 2026 I rebuilt it from an empty project and kept going. The login is 
 
 - **Sign in** uses DummyJSON tokens, which refresh on their own when they expire. You can stay signed in, or unlock with a fingerprint or face after one password sign-in.
 - **Shop** loads 20 products at a time and has search, categories and sorting. Each product page has a photo gallery, stock, shipping details and reviews, and you can add a review of your own.
-- **Cart and saved items** stay on the device, separately for each account. Checkout sends the order to DummyJSON.
+- **Cart and saved items** stay on the device, separately for each account. You can add straight from the grid, pick an amount on the product page, and change it there or in the cart. Checkout sends the order to DummyJSON.
 - **Devices** keeps the assignment's accordion and live readings, and you can add, edit and delete your own devices.
 - **Settings** cover English, Georgian and Russian, light and dark themes, and biometric sign-in.
 
@@ -61,7 +61,7 @@ flutter pub get
 flutter run
 ```
 
-`flutter test` runs 84 tests. They cover sign-in and session restore, the biometric checks, the token refresh, the device list (including the dot and the blink), the shop's paging and search, the cart totals, and your own reviews.
+`flutter test` runs 85 tests. They cover sign-in and session restore, the biometric checks, the token refresh, the device list (including the dot and the blink), the shop's paging and search, the cart totals, and your own reviews.
 
 The app icon is drawn in code by the same painter as the logo on the login screen. `tool/render_icon.dart` has the two commands that regenerate it.
 

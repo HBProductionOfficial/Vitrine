@@ -25,14 +25,17 @@ class CartController extends Notifier<Cart> {
 
   int limitFor(Product product) => math.min(product.stock, maxPerItem);
 
-  /// Adds one unit. Returns false if the product is already at its limit.
-  bool add(Product product) {
+  /// Adds [quantity] units, or as many as still fit under the limit.
+  /// Returns false if none did.
+  bool add(Product product, {int quantity = 1}) {
     final current = state.quantityOf(product.id);
-    if (current >= limitFor(product)) return false;
+    final room = limitFor(product) - current;
+    if (room <= 0 || quantity <= 0) return false;
+    final next = current + math.min<int>(quantity, room);
     if (current == 0) {
-      _save(Cart([...state.items, CartItem(product, 1)]));
+      _save(Cart([...state.items, CartItem(product, next)]));
     } else {
-      setQuantity(product.id, current + 1);
+      setQuantity(product.id, next);
     }
     return true;
   }

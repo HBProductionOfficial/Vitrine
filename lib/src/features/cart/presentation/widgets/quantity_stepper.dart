@@ -7,26 +7,31 @@ import '../../../../core/widgets/motion.dart';
 import '../../../../core/widgets/pressable.dart';
 
 /// Minus / count / plus. At a quantity of one the minus turns into a bin,
-/// because going lower means removing the line.
+/// because going lower means removing the line; without [onRemove] it just
+/// stops at one.
 class QuantityStepper extends StatelessWidget {
   const QuantityStepper({
     super.key,
     required this.quantity,
     required this.max,
     required this.onChanged,
-    required this.onRemove,
+    this.onRemove,
+    this.size = 44,
   });
 
   final int quantity;
   final int max;
   final ValueChanged<int> onChanged;
-  final VoidCallback onRemove;
+  final VoidCallback? onRemove;
+
+  /// Height of the stepper and width of each button.
+  final double size;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final p = context.palette;
-    final last = quantity == 1;
+    final last = quantity == 1 && onRemove != null;
     return Container(
       decoration: BoxDecoration(color: p.surfaceMuted, borderRadius: BorderRadius.circular(Corners.button)),
       child: Row(
@@ -34,7 +39,8 @@ class QuantityStepper extends StatelessWidget {
         children: [
           _StepButton(
             tooltip: last ? l10n.removeFromCart : l10n.decreaseQuantity,
-            onPressed: last ? onRemove : () => onChanged(quantity - 1),
+            size: size,
+            onPressed: last ? onRemove : (quantity > 1 ? () => onChanged(quantity - 1) : null),
             icon: AnimatedSwitcher(
               duration: Motion.base,
               transitionBuilder: (child, animation) => RotationTransition(
@@ -54,6 +60,7 @@ class QuantityStepper extends StatelessWidget {
             child: RollingText('$quantity', style: Theme.of(context).textTheme.titleSmall, alignment: Alignment.center),
           ),
           _StepButton(
+            size: size,
             tooltip: l10n.increaseQuantity,
             onPressed: quantity < max ? () => onChanged(quantity + 1) : null,
             icon: const Icon(Icons.add_rounded, size: 20),
@@ -65,8 +72,9 @@ class QuantityStepper extends StatelessWidget {
 }
 
 class _StepButton extends StatelessWidget {
-  const _StepButton({required this.tooltip, required this.onPressed, required this.icon});
+  const _StepButton({required this.tooltip, required this.onPressed, required this.icon, required this.size});
 
+  final double size;
   final String tooltip;
   final VoidCallback? onPressed;
   final Widget icon;
@@ -81,9 +89,9 @@ class _StepButton extends StatelessWidget {
         semanticLabel: tooltip,
         ripple: true,
         scale: 0.85,
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(size / 2),
         child: SizedBox.square(
-          dimension: 44,
+          dimension: size,
           child: IconTheme.merge(
             data: IconThemeData(color: onPressed == null ? p.inkFaint : p.ink),
             child: Center(child: icon),

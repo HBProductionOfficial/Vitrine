@@ -23,7 +23,14 @@ SliverGridDelegate productGridDelegate(BuildContext context, double width) {
 }
 
 class ProductCard extends StatelessWidget {
-  const ProductCard({super.key, required this.product, this.onTap, this.action, this.heroScope = Routes.shop});
+  const ProductCard({
+    super.key,
+    required this.product,
+    this.onTap,
+    this.action,
+    this.cartButton,
+    this.heroScope = Routes.shop,
+  });
 
   final Product product;
   final VoidCallback? onTap;
@@ -32,8 +39,11 @@ class ProductCard extends StatelessWidget {
   /// Sits in the image's top-right corner.
   final Widget? action;
 
+  /// Sits to the right of the price and rating.
+  final Widget? cartButton;
+
   /// Height of everything under the square image, before text scaling.
-  static const textBlockHeight = 94.0;
+  static const textBlockHeight = 98.0;
 
   @override
   Widget build(BuildContext context) {
@@ -70,15 +80,30 @@ class ProductCard extends StatelessWidget {
           const SizedBox(height: Insets.xs),
           Row(
             children: [
-              Text(formatPrice(context, product.finalPrice), style: theme.textTheme.titleSmall),
-              if (product.isDeal) ...[
-                const SizedBox(width: 6),
-                Text(l10n.percentOff(product.percentOff), style: theme.textTheme.labelSmall?.copyWith(color: p.accent)),
-              ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(formatPrice(context, product.finalPrice), style: theme.textTheme.titleSmall),
+                        if (product.isDeal) ...[
+                          const SizedBox(width: 6),
+                          Text(
+                            l10n.percentOff(product.percentOff),
+                            style: theme.textTheme.labelSmall?.copyWith(color: p.accent),
+                          ),
+                        ],
+                      ],
+                    ),
+                    const SizedBox(height: 2),
+                    RatingLine(product: product),
+                  ],
+                ),
+              ),
+              ?cartButton,
             ],
           ),
-          const SizedBox(height: 2),
-          RatingLine(product: product),
         ],
       ),
     );

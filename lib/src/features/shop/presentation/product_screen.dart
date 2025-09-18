@@ -19,6 +19,7 @@ import '../../../core/widgets/page_body.dart';
 import '../../../core/widgets/skeleton.dart';
 import '../../../core/widgets/state_views.dart';
 import '../../cart/presentation/cart_controller.dart';
+import '../../cart/presentation/widgets/quantity_stepper.dart';
 import '../../reviews/my_reviews_controller.dart';
 import '../../reviews/review_sheet.dart';
 import '../../saved/presentation/save_button.dart';
@@ -518,6 +519,8 @@ class _BuyBar extends ConsumerStatefulWidget {
 }
 
 class _BuyBarState extends ConsumerState<_BuyBar> {
+  /// How many to add, while the product isn't in the cart yet.
+  int _amount = 1;
   Timer? _confirm;
 
   @override
@@ -527,19 +530,24 @@ class _BuyBarState extends ConsumerState<_BuyBar> {
   }
 
   void _add() {
-    final l10n = AppLocalizations.of(context);
-    final router = GoRouter.of(context);
-    if (!ref.read(cartProvider.notifier).add(widget.product)) return;
-    // The button says "Added" with a tick for a moment, then goes back.
+    if (!ref.read(cartProvider.notifier).add(widget.product, quantity: _amount)) return;
+    // A tick on the button for a moment, then it turns into "View cart".
     _confirm?.cancel();
-    _confirm = Timer(const Duration(milliseconds: 1400), () {
+    _confirm = Timer(const Duration(milliseconds: 1200), () {
       if (mounted) setState(() => _confirm = null);
     });
-    setState(() {});
+    setState(() => _amount = 1);
+  }
+
+  void _remove() {
+    final l10n = AppLocalizations.of(context);
+    final cart = ref.read(cartProvider.notifier);
+    final removed = cart.remove(widget.product.id);
+    if (removed == null) return;
     showSnack(
       context,
-      l10n.addedToCart,
-      action: SnackBarAction(label: l10n.viewCart, onPressed: () => router.go(Routes.cart)),
+      l10n.removedFromCart(widget.product.title),
+      action: SnackBarAction(label: l10n.undo, onPressed: () => cart.restore(removed.$1, removed.$2)),
     );
   }
 
@@ -548,9 +556,49 @@ class _BuyBarState extends ConsumerState<_BuyBar> {
     final l10n = AppLocalizations.of(context);
     final p = context.palette;
     final product = widget.product;
+    final cart = ref.read(cartProvider.notifier);
     final inCart = ref.watch(cartProvider.select((c) => c.quantityOf(product.id)));
-    final canAdd = inCart < ref.read(cartProvider.notifier).limitFor(product);
+    final limit = cart.limitFor(product);
     final justAdded = _confirm != null;
+
+    // Out of stock: nothing to pick. In the cart: the stepper edits the cart
+    // line itself. Otherwise it picks how many the button adds.
+    final Widget? stepper = !product.inStock
+        ? null
+        : inCart > 0
+        ? QuantityStepper(
+            key: const ValueKey('cart'),
+            size: 52,
+            quantity: inCart,
+            max: limit,
+            onChanged: (q) => cart.setQuantity(product.id, q),
+            onRemove: _remove,
+          )
+        : QuantityStepper(
+            key: const ValueKey('pick'),
+            size: 52,
+            quantity: _amount,
+            max: limit,
+            onChanged: (q) => setState(() => _amount = q),
+          );
+
+    final PrimaryButton button;
+    if (justAdded) {
+      button = PrimaryButton(accent: true, icon: Icons.check_rounded, label: l10n.addedToCart, onPressed: () {});
+    } else if (inCart > 0) {
+      button = PrimaryButton(
+        icon: Icons.shopping_bag_outlined,
+        label: l10n.viewCart,
+        onPressed: () => GoRouter.of(context).go(Routes.cart),
+      );
+    } else {
+      button = PrimaryButton(
+        accent: true,
+        icon: Icons.add_shopping_cart_rounded,
+        label: product.inStock ? l10n.addToCart : l10n.outOfStock,
+        onPressed: product.inStock ? _add : null,
+      );
+    }
 
     return ColoredBox(
       color: p.surface,
@@ -564,28 +612,11 @@ class _BuyBarState extends ConsumerState<_BuyBar> {
               padding: const EdgeInsets.fromLTRB(Insets.page, Insets.md, Insets.page, Insets.md),
               child: Row(
                 children: [
-                  AnimatedSize(
-                    duration: Motion.base,
-                    curve: Motion.move,
-                    child: inCart > 0
-                        ? Padding(
-                            padding: const EdgeInsets.only(right: Insets.lg),
-                            child: RollingText(
-                              l10n.inCartCount(inCart),
-                              style: Theme.of(context).textTheme.labelMedium,
-                              alignment: Alignment.centerLeft,
-                            ),
-                          )
-                        : const SizedBox.shrink(),
-                  ),
-                  Expanded(
-                    child: PrimaryButton(
-                      accent: true,
-                      icon: justAdded ? Icons.check_rounded : Icons.add_shopping_cart_rounded,
-                      label: justAdded ? l10n.addedToCart : (product.inStock ? l10n.addToCart : l10n.outOfStock),
-                      onPressed: canAdd ? _add : null,
-                    ),
-                  ),
+                  if (stepper != null) ...[
+                    AnimatedSwitcher(duration: Motion.base, child: stepper),
+                    const SizedBox(width: Insets.md),
+                  ],
+                  Expanded(child: button),
                 ],
               ),
             ),
