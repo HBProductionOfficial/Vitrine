@@ -8,6 +8,7 @@ import '../../../../core/errors.dart';
 import '../../../../core/widgets/buttons.dart';
 import '../../../../core/widgets/feedback.dart';
 import '../auth_controller.dart';
+import 'biometric_labels.dart';
 
 /// After a password sign-in, asks once whether to turn on biometric unlock.
 /// Lives above the tab shell so the sheet opens on the first screen the user
@@ -66,18 +67,22 @@ class _OfferSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
-    final face = kind == BiometricKind.face;
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(Insets.xl, 0, Insets.xl, Insets.xl),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(face ? Icons.face_rounded : Icons.fingerprint_rounded, size: 40, color: theme.colorScheme.primary),
+          BiometricGlyph(kind: kind, size: 40, color: theme.colorScheme.primary),
           const SizedBox(height: Insets.lg),
           Text(l10n.enableBioTitle, style: theme.textTheme.headlineSmall),
           const SizedBox(height: Insets.sm),
-          Text(face ? l10n.enableBioBodyFace : l10n.enableBioBodyFingerprint, style: theme.textTheme.bodyMedium),
+          Text(switch (kind) {
+            BiometricKind.face => l10n.enableBioBodyFace,
+            BiometricKind.faceOrFingerprint => l10n.enableBioBodyFaceOrFingerprint,
+            _ => l10n.enableBioBodyFingerprint,
+          }, style: theme.textTheme.bodyMedium),
           const SizedBox(height: Insets.xl),
           PrimaryButton(label: l10n.enableBioConfirm, onPressed: () => Navigator.pop(context, true)),
           const SizedBox(height: Insets.sm),

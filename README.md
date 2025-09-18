@@ -49,7 +49,8 @@ Each feature splits into three layers. `data` talks to the API, `domain` holds p
 
 - DummyJSON doesn't store anything you send. Sign-up, password reset and orders get a believable response, and the app tells you nothing was saved. It has no way to post a review at all, so reviews you write stay on the phone.
 - restful-api.dev allows about 50 requests a day. The app caches the device list and shows the saved copy with a note when the limit is reached. The 13 sample devices are read-only, so Edit and Delete only appear on devices you added.
-- Android reports biometric strength, not the sensor type. Most Android phones therefore get a "Sign in with biometrics" button, while an iPhone with Face ID gets "Sign in with face".
+- Android tells apps how strong a phone's biometrics are, not whether they're a face or a fingerprint. The app asks the system which sensors exist and labels the button to match, for example "Sign in with face or fingerprint". The system prompt still picks the method, and some phones, many Samsungs among them, only let apps use the fingerprint even though face unlock works on the lock screen.
+- Without a sensor the app shows no biometric option at all. With a sensor but nothing set up on it, the sign-in button stays hidden and Settings says what to add.
 - The web build has no biometric sign-in.
 - Sorting uses DummyJSON's list price, but the grid shows the price after discount, so two neighbours can look a few cents out of order.
 - The release APK is signed with the debug key. It installs from the file but isn't ready for an app store.
@@ -61,7 +62,7 @@ flutter pub get
 flutter run
 ```
 
-`flutter test` runs 85 tests. They cover sign-in and session restore, the biometric checks, the token refresh, the device list (including the dot and the blink), the shop's paging and search, the cart totals, and your own reviews.
+`flutter test` runs 90 tests. They cover sign-in and session restore, the biometric checks, the token refresh, the device list (including the dot and the blink), the shop's paging and search, the cart totals, and your own reviews.
 
 The app icon is drawn in code by the same painter as the logo on the login screen. `tool/render_icon.dart` has the two commands that regenerate it.
 

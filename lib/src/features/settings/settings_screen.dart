@@ -12,6 +12,7 @@ import '../../core/widgets/feedback.dart';
 import '../../core/widgets/motion.dart';
 import '../../core/widgets/page_body.dart';
 import '../auth/presentation/auth_controller.dart';
+import '../auth/presentation/widgets/biometric_labels.dart';
 import '../auth/presentation/widgets/sign_out.dart';
 import 'settings_controller.dart';
 import 'widgets/settings_rows.dart';
@@ -97,7 +98,8 @@ class SettingsScreen extends ConsumerWidget {
                 ),
               ],
             ),
-            if (auth is SignedIn)
+            // Phones without a sensor don't get a switch that can never work.
+            if (auth is SignedIn && auth.biometricKind != BiometricKind.none)
               SettingsGroup(
                 title: l10n.security,
                 children: [_BiometricRow(auth: auth)],
@@ -183,19 +185,17 @@ class _BiometricRow extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final kind = auth.biometricKind;
-    final available = kind != BiometricKind.none;
     final enabled = auth.biometricEnabled;
+    // Until a fingerprint or face is set up the switch can only be turned off.
+    final usable = auth.biometricEnrolled || enabled;
 
     return SettingsRow(
-      icon: kind == BiometricKind.face ? Icons.face_rounded : Icons.fingerprint_rounded,
-      label: switch (kind) {
-        BiometricKind.face => l10n.biometricToggleFace,
-        BiometricKind.fingerprint => l10n.biometricToggleFingerprint,
-        _ => l10n.biometricToggleGeneric,
-      },
-      hint: available ? l10n.biometricHint : l10n.biometricUnavailable,
-      onTap: available ? () => _set(context, ref, !enabled) : null,
-      trailing: Switch(value: enabled, onChanged: available ? (on) => _set(context, ref, on) : null),
+      icon: Icons.fingerprint_rounded,
+      leading: BiometricGlyph(kind: kind, size: 22),
+      label: biometricSignInLabel(kind, l10n),
+      hint: auth.biometricEnrolled ? l10n.biometricHint : l10n.biometricSetUpHint,
+      onTap: usable ? () => _set(context, ref, !enabled) : null,
+      trailing: Switch(value: enabled, onChanged: usable ? (on) => _set(context, ref, on) : null),
     );
   }
 }

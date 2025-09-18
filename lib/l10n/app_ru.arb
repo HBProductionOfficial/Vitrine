@@ -186,10 +186,6 @@
   "themeDark": "Тёмная",
   "language": "Язык",
   "security": "Безопасность",
-  "biometricToggleFingerprint": "Вход по отпечатку",
-  "biometricToggleFace": "Вход по лицу",
-  "biometricToggleGeneric": "Вход по биометрии",
-  "biometricUnavailable": "Недоступно на этом устройстве",
   "savedItems": "Избранное",
   "about": "О приложении",
   "aboutBody": "Vitrine начиналось как тестовое задание и выросло в небольшой магазин и монитор устройств. Данные берутся из DummyJSON и restful-api.dev.",
@@ -226,5 +222,9 @@
   "reviewSaved": "Отзыв сохранён",
   "reviewDeleted": "Отзыв удалён",
   "reviewYou": "Вы",
-  "errorRatingRequired": "Выберите оценку"
+  "errorRatingRequired": "Выберите оценку",
+
+  "biometricFaceOrFingerprint": "Войти по лицу или отпечатку",
+  "enableBioBodyFaceOrFingerprint": "Открывайте Vitrine по лицу или отпечатку пальца, без ввода пароля.",
+  "biometricSetUpHint": "Сначала добавьте отпечаток или лицо в настройках телефона"
 }

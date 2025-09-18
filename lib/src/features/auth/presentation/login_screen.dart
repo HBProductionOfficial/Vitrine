@@ -15,6 +15,7 @@ import '../../../core/widgets/form_fields.dart';
 import '../../../core/widgets/notice.dart';
 import '../../../core/widgets/vitrine_mark.dart';
 import 'auth_controller.dart';
+import 'widgets/biometric_labels.dart';
 import 'widgets/or_divider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -110,6 +111,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final p = context.palette;
     final auth = ref.watch(authControllerProvider);
     final kind = auth is SignedOut ? auth.biometricKind : BiometricKind.none;
+    // No sensor, or nothing set up on it: the button couldn't work, so it isn't shown.
+    final canUseBiometrics = auth is SignedOut && kind != BiometricKind.none && auth.biometricEnrolled;
 
     return Scaffold(
       body: SafeArea(
@@ -178,17 +181,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       NoticeSlot(message: _error == null ? null : describeError(_error!, l10n)),
                       const SizedBox(height: Insets.lg),
                       PrimaryButton(label: l10n.signInButton, loading: _submitting, onPressed: _submit),
-                      if (kind != BiometricKind.none) ...[
+                      if (canUseBiometrics) ...[
                         const SizedBox(height: Insets.lg),
                         OrDivider(label: l10n.orDivider),
                         const SizedBox(height: Insets.lg),
                         SecondaryButton(
-                          label: switch (kind) {
-                            BiometricKind.face => l10n.biometricFace,
-                            BiometricKind.fingerprint => l10n.biometricFingerprint,
-                            _ => l10n.biometricGeneric,
-                          },
-                          icon: kind == BiometricKind.face ? Icons.face_rounded : Icons.fingerprint_rounded,
+                          label: biometricSignInLabel(kind, l10n),
+                          leading: BiometricGlyph(kind: kind),
                           onPressed: _unlocking ? null : _unlock,
                         ),
                       ],

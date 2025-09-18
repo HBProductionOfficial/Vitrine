@@ -82,4 +82,22 @@ void main() {
     await pumpLogin(tester);
     expect(find.text('Sign in with fingerprint'), findsOneWidget);
   });
+
+  testWidgets('a phone with both sensors offers face or fingerprint', (tester) async {
+    when(
+      () => biometrics.check(),
+    ).thenAnswer((_) async => const BiometricSupport(BiometricKind.faceOrFingerprint, enrolled: true));
+    await pumpLogin(tester);
+    expect(find.text('Sign in with face or fingerprint'), findsOneWidget);
+    expect(find.byIcon(Icons.face_rounded), findsOneWidget);
+    expect(find.byIcon(Icons.fingerprint_rounded), findsOneWidget);
+  });
+
+  testWidgets('no button while nothing is set up on the sensor', (tester) async {
+    when(
+      () => biometrics.check(),
+    ).thenAnswer((_) async => const BiometricSupport(BiometricKind.fingerprint, enrolled: false));
+    await pumpLogin(tester);
+    expect(find.textContaining('Sign in with'), findsNothing);
+  });
 }

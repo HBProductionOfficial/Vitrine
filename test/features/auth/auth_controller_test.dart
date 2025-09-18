@@ -52,6 +52,19 @@ void main() {
     final state = container.read(authControllerProvider);
     expect(state, isA<SignedOut>());
     expect((state as SignedOut).biometricKind, BiometricKind.fingerprint);
+    expect(state.biometricEnrolled, isTrue);
+  });
+
+  test('picks up a fingerprint added in phone settings while away', () async {
+    sensor(BiometricKind.fingerprint, enrolled: false);
+    final container = await start();
+    await container.read(authControllerProvider.notifier).login('emilys', 'emilyspass', rememberMe: false);
+    expect((container.read(authControllerProvider) as SignedIn).biometricEnrolled, isFalse);
+
+    sensor(BiometricKind.fingerprint);
+    await container.read(authControllerProvider.notifier).refreshBiometrics();
+
+    expect((container.read(authControllerProvider) as SignedIn).biometricEnrolled, isTrue);
   });
 
   group('password sign-in', () {

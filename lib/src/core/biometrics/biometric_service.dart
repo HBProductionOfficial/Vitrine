@@ -1,11 +1,13 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:local_auth/local_auth.dart';
 
-/// What the sign-in button should call itself. Android's BiometricPrompt
-/// decides between face and fingerprint on its own, so when the platform only
-/// reports "strong/weak" we can't promise either and use [generic].
-enum BiometricKind { none, face, fingerprint, generic }
+/// What the sign-in button should call itself. [faceOrFingerprint] is a
+/// phone with both sensors: Android's prompt takes whichever is set up, and
+/// an app can't ask for one in particular. [generic] covers anything else,
+/// such as an iris scanner.
+enum BiometricKind { none, face, fingerprint, faceOrFingerprint, generic }
 
 enum BiometricFailure { notAvailable, notEnrolled, notSetUp, canceled, lockedOut, failed }
 
@@ -40,9 +42,14 @@ abstract class BiometricService {
 }
 
 class LocalBiometricService implements BiometricService {
-  LocalBiometricService([LocalAuthentication? auth]) : _auth = auth ?? LocalAuthentication();
+  LocalBiometricService({LocalAuthentication? auth, Future<Set<String>> Function()? sensors})
+    : _auth = auth ?? LocalAuthentication(),
+      _sensors = sensors ?? _androidSensors;
 
   final LocalAuthentication _auth;
+
+  /// Sensor names from the system: "face", "fingerprint", "iris".
+  final Future<Set<String>> Function() _sensors;
 
   @override
   Future<BiometricSupport> check() async {
@@ -51,16 +58,35 @@ class LocalBiometricService implements BiometricService {
       if (!await _auth.canCheckBiometrics) return BiometricSupport.unavailable;
       final types = await _auth.getAvailableBiometrics();
       final enrolled = types.isNotEmpty && await _auth.isDeviceSupported();
-      // Face wins when the platform names it (iPhones with Face ID). Android
-      // only reports strong/weak classes, so it gets the generic label.
-      final kind = types.contains(BiometricType.face)
-          ? BiometricKind.face
-          : types.contains(BiometricType.fingerprint)
-          ? BiometricKind.fingerprint
-          : BiometricKind.generic;
-      return BiometricSupport(kind, enrolled: enrolled);
+      return BiometricSupport(await _kind(types), enrolled: enrolled);
     } on LocalAuthException {
       return BiometricSupport.unavailable;
+    }
+  }
+
+  Future<BiometricKind> _kind(List<BiometricType> types) async {
+    // iPhones say exactly what they have.
+    if (types.contains(BiometricType.face)) return BiometricKind.face;
+    if (types.contains(BiometricType.fingerprint)) return BiometricKind.fingerprint;
+    // Android only reports strong or weak, so look at the sensors instead.
+    final sensors = await _sensors();
+    final face = sensors.contains('face');
+    final fingerprint = sensors.contains('fingerprint');
+    if (face && fingerprint) return BiometricKind.faceOrFingerprint;
+    if (face) return BiometricKind.face;
+    if (fingerprint) return BiometricKind.fingerprint;
+    return BiometricKind.generic;
+  }
+
+  static Future<Set<String>> _androidSensors() async {
+    if (defaultTargetPlatform != TargetPlatform.android) return const {};
+    try {
+      const channel = MethodChannel('vitrine/biometric_hardware');
+      return {...?await channel.invokeListMethod<String>('sensors')};
+    } on PlatformException {
+      return const {};
+    } on MissingPluginException {
+      return const {};
     }
   }
 

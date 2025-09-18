@@ -8,6 +8,7 @@ class MockLocalAuth extends Mock implements LocalAuthentication {}
 void main() {
   late MockLocalAuth auth;
   late LocalBiometricService service;
+  var sensors = <String>{};
 
   void phone({required bool canCheck, List<BiometricType> types = const [], bool supported = true}) {
     when(() => auth.canCheckBiometrics).thenAnswer((_) async => canCheck);
@@ -17,7 +18,8 @@ void main() {
 
   setUp(() {
     auth = MockLocalAuth();
-    service = LocalBiometricService(auth);
+    sensors = {};
+    service = LocalBiometricService(auth: auth, sensors: () async => sensors);
   });
 
   group('which kind to show', () {
@@ -33,8 +35,23 @@ void main() {
       expect((await service.check()).kind, BiometricKind.fingerprint);
     });
 
-    test('Android strength classes get the generic label', () async {
+    test('Android with both sensors offers face or fingerprint', () async {
+      phone(canCheck: true, types: [BiometricType.weak, BiometricType.strong]);
+      sensors = {'face', 'fingerprint'};
+      expect((await service.check()).kind, BiometricKind.faceOrFingerprint);
+    });
+
+    test('Android with only one sensor names it', () async {
       phone(canCheck: true, types: [BiometricType.strong]);
+      sensors = {'fingerprint'};
+      expect((await service.check()).kind, BiometricKind.fingerprint);
+      sensors = {'face'};
+      expect((await service.check()).kind, BiometricKind.face);
+    });
+
+    test('anything else, like an iris scanner, gets the generic label', () async {
+      phone(canCheck: true, types: [BiometricType.strong]);
+      sensors = {'iris'};
       expect((await service.check()).kind, BiometricKind.generic);
     });
 

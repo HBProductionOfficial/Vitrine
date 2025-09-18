@@ -186,10 +186,6 @@
   "themeDark": "მუქი",
   "language": "ენა",
   "security": "უსაფრთხოება",
-  "biometricToggleFingerprint": "შესვლა თითის ანაბეჭდით",
-  "biometricToggleFace": "შესვლა სახით",
-  "biometricToggleGeneric": "ბიომეტრიული შესვლა",
-  "biometricUnavailable": "ამ მოწყობილობაზე მიუწვდომელია",
   "savedItems": "შენახული ნივთები",
   "about": "აპის შესახებ",
   "aboutBody": "Vitrine დაიწყო როგორც სატესტო დავალება და გადაიქცა პატარა მაღაზიად და მოწყობილობების მონიტორად. მონაცემები მოდის DummyJSON-დან და restful-api.dev-დან.",
@@ -226,5 +222,9 @@
   "reviewSaved": "შეფასება შენახულია",
   "reviewDeleted": "შეფასება წაიშალა",
   "reviewYou": "შენ",
-  "errorRatingRequired": "აირჩიე ვარსკვლავების რაოდენობა"
+  "errorRatingRequired": "აირჩიე ვარსკვლავების რაოდენობა",
+
+  "biometricFaceOrFingerprint": "შესვლა სახით ან თითის ანაბეჭდით",
+  "enableBioBodyFaceOrFingerprint": "გახსენი Vitrine სახით ან თითის ანაბეჭდით, პაროლის აკრეფის გარეშე.",
+  "biometricSetUpHint": "ჯერ დაამატე თითის ანაბეჭდი ან სახე ტელეფონის პარამეტრებში"
 }

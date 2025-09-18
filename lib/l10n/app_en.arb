@@ -234,10 +234,6 @@
   "themeDark": "Dark",
   "language": "Language",
   "security": "Security",
-  "biometricToggleFingerprint": "Sign in with fingerprint",
-  "biometricToggleFace": "Sign in with face",
-  "biometricToggleGeneric": "Biometric sign-in",
-  "biometricUnavailable": "Not available on this device",
   "savedItems": "Saved items",
   "about": "About",
   "aboutBody": "Vitrine started as a take-home assignment and grew into a small shop and device monitor. Data comes from DummyJSON and restful-api.dev.",
@@ -283,5 +279,9 @@
   "reviewSaved": "Review saved",
   "reviewDeleted": "Review deleted",
   "reviewYou": "You",
-  "errorRatingRequired": "Choose a star rating"
+  "errorRatingRequired": "Choose a star rating",
+
+  "biometricFaceOrFingerprint": "Sign in with face or fingerprint",
+  "enableBioBodyFaceOrFingerprint": "Open Vitrine with your face or fingerprint instead of typing your password.",
+  "biometricSetUpHint": "Add a fingerprint or face in your phone settings first"
 }

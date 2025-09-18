@@ -21,9 +21,17 @@ class AuthRestoring extends AuthState {
 }
 
 class SignedOut extends AuthState {
-  const SignedOut({this.biometricKind = BiometricKind.none, this.biometricReady = false, this.reason});
+  const SignedOut({
+    this.biometricKind = BiometricKind.none,
+    this.biometricEnrolled = false,
+    this.biometricReady = false,
+    this.reason,
+  });
 
   final BiometricKind biometricKind;
+
+  /// A fingerprint or face is set up on the phone, so the prompt can work.
+  final bool biometricEnrolled;
 
   /// A session is saved and biometric unlock is turned on.
   final bool biometricReady;
@@ -37,20 +45,28 @@ class SignedIn extends AuthState {
   const SignedIn({
     required this.user,
     this.biometricKind = BiometricKind.none,
+    this.biometricEnrolled = false,
     this.biometricEnabled = false,
     this.offerBiometrics = false,
   });
 
   final User user;
   final BiometricKind biometricKind;
+  final bool biometricEnrolled;
   final bool biometricEnabled;
 
   /// Ask once after a password sign-in whether to turn on biometric unlock.
   final bool offerBiometrics;
 
-  SignedIn copyWith({bool? biometricEnabled, bool? offerBiometrics}) => SignedIn(
+  SignedIn copyWith({
+    BiometricKind? biometricKind,
+    bool? biometricEnrolled,
+    bool? biometricEnabled,
+    bool? offerBiometrics,
+  }) => SignedIn(
     user: user,
-    biometricKind: biometricKind,
+    biometricKind: biometricKind ?? this.biometricKind,
+    biometricEnrolled: biometricEnrolled ?? this.biometricEnrolled,
     biometricEnabled: biometricEnabled ?? this.biometricEnabled,
     offerBiometrics: offerBiometrics ?? this.offerBiometrics,
   );
@@ -69,44 +85,71 @@ class AuthController extends Notifier<AuthState> {
     return const AuthRestoring();
   }
 
+  /// What the phone could do at the last check.
+  BiometricSupport _support = BiometricSupport.unavailable;
+
+  SignedOut _signedOut({bool ready = false, Object? reason}) => SignedOut(
+    biometricKind: _support.kind,
+    biometricEnrolled: _support.enrolled,
+    biometricReady: ready,
+    reason: reason,
+  );
+
   bool get _rememberMe => ref.read(preferencesProvider).getBool(_rememberKey) ?? false;
   bool get _biometricEnabled => ref.read(preferencesProvider).getBool(_biometricKey) ?? false;
 
   Future<void> _restore() async {
-    final support = await ref.read(biometricServiceProvider).check();
-    final kind = support.kind;
+    _support = await ref.read(biometricServiceProvider).check();
     final saved = await ref.read(secureStoreProvider).read(refreshTokenKey);
     if (!ref.mounted) return;
 
     if (saved == null) {
-      state = SignedOut(biometricKind: kind);
+      state = _signedOut();
       return;
     }
-    if (_biometricEnabled && support.enrolled) {
-      state = SignedOut(biometricKind: kind, biometricReady: true);
+    if (_biometricEnabled && _support.enrolled) {
+      state = _signedOut(ready: true);
       return;
     }
     if (!_rememberMe) {
       await _forgetSession();
-      state = SignedOut(biometricKind: kind);
+      state = _signedOut();
       return;
     }
     try {
-      await _resume(saved, kind);
+      await _resume(saved);
     } on ApiException catch (e) {
       if (e.kind == ApiErrorKind.unauthorized) await _forgetSession();
-      if (ref.mounted) state = SignedOut(biometricKind: kind, reason: e);
+      if (ref.mounted) state = _signedOut(reason: e);
     }
   }
 
-  Future<void> _resume(String refreshToken, BiometricKind kind) async {
+  /// Checks the sensors again, e.g. when the user comes back from phone
+  /// settings after adding a fingerprint.
+  Future<void> refreshBiometrics() async {
+    final support = await ref.read(biometricServiceProvider).check();
+    if (!ref.mounted) return;
+    _support = support;
+    state = switch (state) {
+      final SignedIn s => s.copyWith(biometricKind: support.kind, biometricEnrolled: support.enrolled),
+      final SignedOut s => _signedOut(ready: s.biometricReady && support.enrolled, reason: s.reason),
+      final AuthRestoring s => s,
+    };
+  }
+
+  Future<void> _resume(String refreshToken) async {
     final repo = ref.read(authRepositoryProvider);
     final tokens = await repo.refresh(refreshToken);
     ref.read(tokenHolderProvider).update(access: tokens.accessToken, refresh: tokens.refreshToken);
     final user = await repo.currentUser();
     await ref.read(secureStoreProvider).write(refreshTokenKey, tokens.refreshToken);
     if (!ref.mounted) return;
-    state = SignedIn(user: user, biometricKind: kind, biometricEnabled: _biometricEnabled);
+    state = SignedIn(
+      user: user,
+      biometricKind: _support.kind,
+      biometricEnrolled: _support.enrolled,
+      biometricEnabled: _biometricEnabled,
+    );
   }
 
   Future<void> login(String username, String password, {required bool rememberMe}) async {
@@ -122,11 +165,12 @@ class AuthController extends Notifier<AuthState> {
       await secure.delete(refreshTokenKey);
     }
 
-    final support = await ref.read(biometricServiceProvider).check();
-    final offer = support.enrolled && !_biometricEnabled && !(prefs.getBool(_offerDeclinedKey) ?? false);
+    _support = await ref.read(biometricServiceProvider).check();
+    final offer = _support.enrolled && !_biometricEnabled && !(prefs.getBool(_offerDeclinedKey) ?? false);
     state = SignedIn(
       user: user,
-      biometricKind: support.kind,
+      biometricKind: _support.kind,
+      biometricEnrolled: _support.enrolled,
       biometricEnabled: _biometricEnabled,
       offerBiometrics: offer,
     );
@@ -135,9 +179,8 @@ class AuthController extends Notifier<AuthState> {
   /// The assignment's "Login with Biometrics": unlocks the session saved by an
   /// earlier password sign-in.
   Future<void> unlockWithBiometrics(String reason) async {
-    final support = await ref.read(biometricServiceProvider).check();
-    final kind = support.kind;
-    if (kind == BiometricKind.none) throw const BiometricException(BiometricFailure.notAvailable);
+    final support = _support = await ref.read(biometricServiceProvider).check();
+    if (support.kind == BiometricKind.none) throw const BiometricException(BiometricFailure.notAvailable);
     if (!support.enrolled) throw const BiometricException(BiometricFailure.notEnrolled);
     final saved = await ref.read(secureStoreProvider).read(refreshTokenKey);
     if (!_biometricEnabled || saved == null) {
@@ -145,11 +188,11 @@ class AuthController extends Notifier<AuthState> {
     }
     await ref.read(biometricServiceProvider).authenticate(reason);
     try {
-      await _resume(saved, kind);
+      await _resume(saved);
     } on ApiException catch (e) {
       if (e.kind == ApiErrorKind.unauthorized) {
         await _forgetSession();
-        if (ref.mounted) state = SignedOut(biometricKind: kind);
+        if (ref.mounted) state = _signedOut();
       }
       rethrow;
     }
@@ -180,14 +223,9 @@ class AuthController extends Notifier<AuthState> {
   }
 
   Future<void> signOut() async {
-    final kind = switch (state) {
-      SignedIn(:final biometricKind) => biometricKind,
-      SignedOut(:final biometricKind) => biometricKind,
-      AuthRestoring() => BiometricKind.none,
-    };
     ref.read(tokenHolderProvider).clear();
     await _forgetSession();
-    state = SignedOut(biometricKind: kind);
+    state = _signedOut();
   }
 
   /// Called by the HTTP layer when the refresh token stops working.
@@ -196,7 +234,7 @@ class AuthController extends Notifier<AuthState> {
     if (current is! SignedIn) return;
     ref.read(tokenHolderProvider).clear();
     unawaited(_forgetSession());
-    state = SignedOut(biometricKind: current.biometricKind, reason: const ApiException(ApiErrorKind.unauthorized));
+    state = _signedOut(reason: const ApiException(ApiErrorKind.unauthorized));
   }
 
   Future<void> _forgetSession() async {

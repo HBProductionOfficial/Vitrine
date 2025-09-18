@@ -58,9 +58,13 @@ class SettingsRow extends StatefulWidget {
     this.onTap,
     this.external = false,
     this.color,
+    this.leading,
   });
 
   final IconData icon;
+
+  /// Used instead of [icon] when one glyph isn't enough.
+  final Widget? leading;
   final String label;
   final String? hint;
   final String? value;
@@ -109,7 +113,10 @@ class _SettingsRowState extends State<SettingsRow> {
             scale: 0.98,
             child: Row(
               children: [
-                Icon(widget.icon, size: 22, color: widget.color ?? p.inkSoft),
+                IconTheme.merge(
+                  data: IconThemeData(size: 22, color: widget.color ?? p.inkSoft),
+                  child: widget.leading ?? Icon(widget.icon),
+                ),
                 const SizedBox(width: Insets.lg),
                 Expanded(
                   child: Column(

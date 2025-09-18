@@ -53,11 +53,14 @@ class PrimaryButton extends StatelessWidget {
 
 /// Grey tonal button for the second choice on a screen.
 class SecondaryButton extends StatelessWidget {
-  const SecondaryButton({super.key, required this.label, required this.onPressed, this.icon});
+  const SecondaryButton({super.key, required this.label, required this.onPressed, this.icon, this.leading});
 
   final String label;
   final VoidCallback? onPressed;
   final IconData? icon;
+
+  /// Used instead of [icon] when one glyph isn't enough.
+  final Widget? leading;
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +70,7 @@ class SecondaryButton extends StatelessWidget {
         builder: (states) => OutlinedButton(
           statesController: states,
           onPressed: onPressed,
-          child: _Label(label: label, icon: icon),
+          child: _Label(label: label, icon: icon, leading: leading),
         ),
       ),
     );
@@ -75,17 +78,19 @@ class SecondaryButton extends StatelessWidget {
 }
 
 class _Label extends StatelessWidget {
-  const _Label({super.key, required this.label, this.icon});
+  const _Label({super.key, required this.label, this.icon, this.leading});
 
   final String label;
   final IconData? icon;
+  final Widget? leading;
 
   @override
   Widget build(BuildContext context) {
+    final start = leading ?? (icon == null ? null : Icon(icon, size: 20));
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (icon != null) ...[Icon(icon, size: 20), const SizedBox(width: 8)],
+        if (start != null) ...[start, const SizedBox(width: 8)],
         Flexible(child: Text(label, overflow: TextOverflow.ellipsis)),
       ],
     );
