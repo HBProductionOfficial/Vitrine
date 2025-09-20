@@ -4,9 +4,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vitrine/src/core/network/api_exception.dart';
 import 'package:vitrine/src/core/storage/preferences.dart';
 import 'package:vitrine/src/features/auth/presentation/auth_controller.dart';
-import 'package:vitrine/src/features/cart/data/dummy_json_orders_repository.dart';
 import 'package:vitrine/src/features/cart/domain/cart.dart';
-import 'package:vitrine/src/features/cart/domain/orders_repository.dart';
+import 'package:vitrine/src/features/orders/data/dummy_json_orders_repository.dart';
+import 'package:vitrine/src/features/orders/domain/order.dart';
+import 'package:vitrine/src/features/orders/domain/orders_repository.dart';
+import 'package:vitrine/src/features/orders/presentation/orders_controller.dart';
 import 'package:vitrine/src/features/cart/presentation/cart_controller.dart';
 import 'package:vitrine/src/features/shop/domain/product.dart';
 
@@ -24,6 +26,9 @@ class FakeOrders implements OrdersRepository {
     placed = items;
     return 51;
   }
+
+  @override
+  Future<List<Order>> history(int userId) async => const [];
 }
 
 void main() {
@@ -128,6 +133,13 @@ void main() {
       expect(await cart.checkout(), 51);
       expect(orders.placed!.single.product.id, _mascara.id);
       expect(container.read(cartProvider).isEmpty, isTrue);
+
+      // DummyJSON forgets the order, so the app keeps its own copy.
+      final saved = container.read(placedOrdersProvider).single;
+      expect(saved.id, 51);
+      expect(saved.lines.single.title, 'Mascara');
+      expect(saved.total, 8.94);
+      expect(saved.placedHere, isTrue);
     });
 
     test('a failed checkout keeps the cart', () async {
@@ -137,6 +149,7 @@ void main() {
 
       await expectLater(cart.checkout(), throwsA(isA<ApiException>()));
       expect(container.read(cartProvider).count, 1);
+      expect(container.read(placedOrdersProvider), isEmpty);
     });
   });
 }

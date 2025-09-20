@@ -283,5 +283,30 @@
 
   "biometricFaceOrFingerprint": "Sign in with face or fingerprint",
   "enableBioBodyFaceOrFingerprint": "Open Vitrine with your face or fingerprint instead of typing your password.",
-  "biometricSetUpHint": "Add a fingerprint or face in your phone settings first"
+  "biometricSetUpHint": "Add a fingerprint or face in your phone settings first",
+
+  "ordersTitle": "Orders",
+  "ordersEmptyTitle": "No orders yet",
+  "ordersEmptyBody": "Orders you place will show up here.",
+  "ordersPlacedHere": "Placed in Vitrine",
+  "ordersEarlier": "Earlier orders",
+  "ordersEarlierNote": "The demo account's order history on DummyJSON.",
+  "ordersNoneEarlier": "Nothing here.",
+  "orderNumber": "Order #{id}",
+  "@orderNumber": {
+    "placeholders": { "id": { "type": "int" } }
+  },
+  "orderKeptLocally": "DummyJSON confirmed this as order #{id} but doesn't keep orders, so this copy is saved on the phone.",
+  "@orderKeptLocally": {
+    "placeholders": { "id": { "type": "int" } }
+  },
+  "orderQuantityPrice": "{count} × {price}",
+  "@orderQuantityPrice": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "price": { "type": "String" }
+    }
+  },
+  "orderNotFound": "This order isn't available.",
+  "viewOrders": "See your orders"
 }

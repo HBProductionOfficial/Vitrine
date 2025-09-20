@@ -226,5 +226,18 @@
 
   "biometricFaceOrFingerprint": "შესვლა სახით ან თითის ანაბეჭდით",
   "enableBioBodyFaceOrFingerprint": "გახსენი Vitrine სახით ან თითის ანაბეჭდით, პაროლის აკრეფის გარეშე.",
-  "biometricSetUpHint": "ჯერ დაამატე თითის ანაბეჭდი ან სახე ტელეფონის პარამეტრებში"
+  "biometricSetUpHint": "ჯერ დაამატე თითის ანაბეჭდი ან სახე ტელეფონის პარამეტრებში",
+
+  "ordersTitle": "შეკვეთები",
+  "ordersEmptyTitle": "შეკვეთები ჯერ არ არის",
+  "ordersEmptyBody": "შენი შეკვეთები აქ გამოჩნდება.",
+  "ordersPlacedHere": "Vitrine-ში გაფორმებული",
+  "ordersEarlier": "წინა შეკვეთები",
+  "ordersEarlierNote": "სადემონსტრაციო ანგარიშის შეკვეთების ისტორია DummyJSON-ზე.",
+  "ordersNoneEarlier": "აქ არაფერია.",
+  "orderNumber": "შეკვეთა #{id}",
+  "orderKeptLocally": "DummyJSON-მა ეს შეკვეთა #{id} ნომრით დაადასტურა, მაგრამ შეკვეთებს არ ინახავს, ამიტომ ასლი ტელეფონზეა შენახული.",
+  "orderQuantityPrice": "{count} × {price}",
+  "orderNotFound": "ეს შეკვეთა მიუწვდომელია.",
+  "viewOrders": "შენი შეკვეთები"
 }

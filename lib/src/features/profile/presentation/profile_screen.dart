@@ -96,6 +96,11 @@ class ProfileScreen extends ConsumerWidget {
                 children: [
                   // Also reachable from the gear; a list of account things without it reads as an omission.
                   SettingsRow(
+                    icon: Icons.receipt_long_outlined,
+                    label: l10n.ordersTitle,
+                    onTap: () => context.push(Routes.orders),
+                  ),
+                  SettingsRow(
                     icon: Icons.settings_outlined,
                     label: l10n.settings,
                     onTap: () => context.push(Routes.settings),

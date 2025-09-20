@@ -10,6 +10,8 @@ import '../../features/auth/presentation/splash_screen.dart';
 import '../../features/auth/presentation/widgets/biometric_offer.dart';
 import '../../features/cart/presentation/cart_screen.dart';
 import '../../features/devices/presentation/devices_screen.dart';
+import '../../features/orders/presentation/order_screen.dart';
+import '../../features/orders/presentation/orders_screen.dart';
 import '../../features/profile/presentation/profile_screen.dart';
 import '../../features/saved/presentation/saved_screen.dart';
 import '../../features/settings/settings_screen.dart';
@@ -74,7 +76,20 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: Routes.profile,
                 builder: (_, _) => const ProfileScreen(),
-                routes: [GoRoute(path: 'settings', builder: (_, _) => const SettingsScreen())],
+                routes: [
+                  GoRoute(path: 'settings', builder: (_, _) => const SettingsScreen()),
+                  GoRoute(
+                    path: 'orders',
+                    builder: (_, _) => const OrdersScreen(),
+                    routes: [
+                      GoRoute(
+                        path: ':ref',
+                        builder: (_, state) => OrderScreen(orderRef: state.pathParameters['ref']!),
+                        routes: [_productRoute(Routes.orders)],
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ],
           ),

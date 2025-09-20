@@ -94,6 +94,16 @@ class _CheckoutSheetState extends ConsumerState<CheckoutSheet> {
               router.go(Routes.shop);
             },
           ),
+          const SizedBox(height: Insets.sm),
+          SecondaryButton(
+            label: l10n.viewOrders,
+            icon: Icons.receipt_long_outlined,
+            onPressed: () {
+              final router = GoRouter.of(context);
+              Navigator.pop(context);
+              router.go(Routes.orders);
+            },
+          ),
         ],
       ),
     );

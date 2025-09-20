@@ -226,5 +226,18 @@
 
   "biometricFaceOrFingerprint": "Войти по лицу или отпечатку",
   "enableBioBodyFaceOrFingerprint": "Открывайте Vitrine по лицу или отпечатку пальца, без ввода пароля.",
-  "biometricSetUpHint": "Сначала добавьте отпечаток или лицо в настройках телефона"
+  "biometricSetUpHint": "Сначала добавьте отпечаток или лицо в настройках телефона",
+
+  "ordersTitle": "Заказы",
+  "ordersEmptyTitle": "Заказов пока нет",
+  "ordersEmptyBody": "Здесь появятся ваши заказы.",
+  "ordersPlacedHere": "Оформлены в Vitrine",
+  "ordersEarlier": "Прошлые заказы",
+  "ordersEarlierNote": "История заказов демо-аккаунта в DummyJSON.",
+  "ordersNoneEarlier": "Здесь пусто.",
+  "orderNumber": "Заказ #{id}",
+  "orderKeptLocally": "DummyJSON подтвердил заказ #{id}, но не хранит заказы, поэтому копия сохранена на телефоне.",
+  "orderQuantityPrice": "{count} × {price}",
+  "orderNotFound": "Этот заказ недоступен.",
+  "viewOrders": "Мои заказы"
 }

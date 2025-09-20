@@ -7,7 +7,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/storage/preferences.dart';
 import '../../auth/presentation/auth_controller.dart';
 import '../../shop/domain/product.dart';
-import '../data/dummy_json_orders_repository.dart';
+import '../../orders/data/dummy_json_orders_repository.dart';
+import '../../orders/domain/order.dart';
+import '../../orders/presentation/orders_controller.dart';
 import '../domain/cart.dart';
 
 class CartController extends Notifier<Cart> {
@@ -66,8 +68,11 @@ class CartController extends Notifier<Cart> {
   Future<int> checkout() async {
     final userId = ref.read(currentUserIdProvider);
     if (userId == null || state.isEmpty) throw StateError('Nothing to check out');
-    final orderId = await ref.read(ordersRepositoryProvider).placeOrder(userId: userId, items: state.items);
-    if (ref.mounted) _save(const Cart());
+    final cart = state;
+    final orderId = await ref.read(ordersRepositoryProvider).placeOrder(userId: userId, items: cart.items);
+    if (!ref.mounted) return orderId;
+    ref.read(placedOrdersProvider.notifier).add(Order.fromCart(orderId, cart, DateTime.now()));
+    _save(const Cart());
     return orderId;
   }
 

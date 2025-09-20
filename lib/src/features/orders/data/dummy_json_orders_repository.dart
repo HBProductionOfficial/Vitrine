@@ -3,7 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/network/api_clients.dart';
 import '../../../core/network/api_exception.dart';
-import '../domain/cart.dart';
+import '../../cart/domain/cart.dart';
+import '../domain/order.dart';
 import '../domain/orders_repository.dart';
 
 class DummyJsonOrdersRepository implements OrdersRepository {
@@ -25,6 +26,16 @@ class DummyJsonOrdersRepository implements OrdersRepository {
         },
       );
       return response.data!['id'] as int;
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  @override
+  Future<List<Order>> history(int userId) async {
+    try {
+      final response = await _dio.get<Map<String, dynamic>>('/carts/user/$userId');
+      return (response.data!['carts'] as List<dynamic>).whereType<Map<String, dynamic>>().map(Order.fromJson).toList();
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     }
