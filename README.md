@@ -1,10 +1,10 @@
 # Vitrine
 
-[![CI](https://github.com/HBProductionOfficial/vitrine-flutter/actions/workflows/ci.yml/badge.svg)](https://github.com/HBProductionOfficial/vitrine-flutter/actions/workflows/ci.yml)
+[![CI](https://github.com/HBProductionOfficial/Vitrine/actions/workflows/ci.yml/badge.svg)](https://github.com/HBProductionOfficial/Vitrine/actions/workflows/ci.yml)
 
 Vitrine is a Flutter app with a small shop and a live device list. It signs in against [DummyJSON](https://dummyjson.com), sells from its 194-product sample catalog, and shows simulated sensor readings for devices from [restful-api.dev](https://restful-api.dev).
 
-**Try it:** the [web demo](https://hbproductionofficial.github.io/vitrine-flutter/), or the APK on the [Releases](https://github.com/HBProductionOfficial/vitrine-flutter/releases) page (`vitrine-arm64-v8a.apk` fits almost any recent phone). The demo account is `emilys` / `emilyspass`, and the login screen can fill it in for you.
+**Try it:** the [web demo](https://hbproductionofficial.github.io/Vitrine/), or the APK on the [Releases](https://github.com/HBProductionOfficial/Vitrine/releases) page (`vitrine-arm64-v8a.apk` fits almost any recent phone). The demo account is `emilys` / `emilyspass`, and the login screen can fill it in for you.
 
 ## Background
 

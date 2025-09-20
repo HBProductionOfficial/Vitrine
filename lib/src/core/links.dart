@@ -5,7 +5,7 @@ import 'package:vitrine/l10n/gen/app_localizations.dart';
 import 'widgets/feedback.dart';
 
 abstract final class Links {
-  static const source = 'https://github.com/HBProductionOfficial/vitrine-flutter';
+  static const source = 'https://github.com/HBProductionOfficial/Vitrine';
   static const newIssue = '$source/issues/new';
   static const dummyJson = 'https://dummyjson.com';
   static const restfulApi = 'https://restful-api.dev';

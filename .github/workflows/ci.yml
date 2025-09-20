@@ -97,7 +97,7 @@ jobs:
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           cache: true
-      - run: flutter build web --release --base-href /vitrine-flutter/
+      - run: flutter build web --release --base-href /Vitrine/
       - uses: actions/upload-pages-artifact@v3
         with:
           path: build/web
