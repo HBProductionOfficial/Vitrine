@@ -1,8 +1,10 @@
 # Vitrine
 
+[![CI](https://github.com/HBProductionOfficial/vitrine-flutter/actions/workflows/ci.yml/badge.svg)](https://github.com/HBProductionOfficial/vitrine-flutter/actions/workflows/ci.yml)
+
 Vitrine is a Flutter app with a small shop and a live device list. It signs in against [DummyJSON](https://dummyjson.com), sells from its 194-product sample catalog, and shows simulated sensor readings for devices from [restful-api.dev](https://restful-api.dev).
 
-**Try it:** the [web demo](https://hbproductionofficial.github.io/vitrine-flutter/), or the APK on the [Releases](https://github.com/HBProductionOfficial/vitrine-flutter/releases) page. The demo account is `emilys` / `emilyspass`, and the login screen can fill it in for you.
+**Try it:** the [web demo](https://hbproductionofficial.github.io/vitrine-flutter/), or the APK on the [Releases](https://github.com/HBProductionOfficial/vitrine-flutter/releases) page (`vitrine-arm64-v8a.apk` fits almost any recent phone). The demo account is `emilys` / `emilyspass`, and the login screen can fill it in for you.
 
 ## Background
 
@@ -63,7 +65,15 @@ flutter pub get
 flutter run
 ```
 
-`flutter test` runs 99 tests. They cover sign-in and session restore, the biometric checks, the token refresh, the device list (including the dot and the blink), the shop's paging and search, the cart totals, and your own reviews.
+`flutter test` runs 99 unit and widget tests. They cover sign-in and session restore, the biometric checks, the token refresh, the device list (including the dot and the blink), the shop's paging and search, the cart totals, orders and your own reviews.
+
+The end-to-end tests in `integration_test/` drive the whole app on a phone or emulator:
+
+```sh
+flutter test integration_test -d <device id>
+```
+
+They search, add to the cart, change the amount and check out; watch a device's readings change; and try a wrong password and a server that drops out and comes back. Instead of the public APIs they talk to a fake server built from real captured responses, so the results don't depend on DummyJSON being up or on restful-api.dev's daily limit. CI runs them on an Android 14 emulator.
 
 The app icon is drawn in code by the same painter as the logo on the login screen. `tool/render_icon.dart` has the two commands that regenerate it.
 

@@ -10,21 +10,32 @@ abstract final class ApiUrls {
   static const restfulApi = 'https://api.restful-api.dev';
 }
 
-BaseOptions _options(String baseUrl) => BaseOptions(
-  baseUrl: baseUrl,
-  connectTimeout: const Duration(seconds: 12),
-  receiveTimeout: const Duration(seconds: 15),
-  contentType: Headers.jsonContentType,
-  responseType: ResponseType.json,
-);
+/// Where requests actually go. Null is the real network; the end-to-end
+/// tests put a fake server here so they don't depend on the public APIs.
+final httpAdapterProvider = Provider<HttpClientAdapter?>((ref) => null);
+
+Dio _client(Ref ref, String baseUrl) {
+  final dio = Dio(
+    BaseOptions(
+      baseUrl: baseUrl,
+      connectTimeout: const Duration(seconds: 12),
+      receiveTimeout: const Duration(seconds: 15),
+      contentType: Headers.jsonContentType,
+      responseType: ResponseType.json,
+    ),
+  );
+  final adapter = ref.watch(httpAdapterProvider);
+  if (adapter != null) dio.httpClientAdapter = adapter;
+  return dio;
+}
 
 /// DummyJSON: login, profile, products and orders.
 final dummyJsonClientProvider = Provider<Dio>((ref) {
-  final dio = Dio(_options(ApiUrls.dummyJson));
+  final dio = _client(ref, ApiUrls.dummyJson);
   dio.interceptors.add(
     AuthInterceptor(
       tokens: ref.watch(tokenHolderProvider),
-      plainClient: Dio(_options(ApiUrls.dummyJson)),
+      plainClient: _client(ref, ApiUrls.dummyJson),
       onSessionExpired: () => ref.read(authControllerProvider.notifier).onSessionExpired(),
       onRefreshed: (refresh) => ref.read(authControllerProvider.notifier).onTokensRefreshed(refresh),
     ),
@@ -35,7 +46,7 @@ final dummyJsonClientProvider = Provider<Dio>((ref) {
 
 /// restful-api.dev: the device list from the original assignment.
 final restfulApiClientProvider = Provider<Dio>((ref) {
-  final dio = Dio(_options(ApiUrls.restfulApi));
+  final dio = _client(ref, ApiUrls.restfulApi);
   ref.onDispose(dio.close);
   return dio;
 });
