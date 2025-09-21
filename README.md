@@ -6,6 +6,13 @@ Vitrine is a Flutter app with a small shop and a live device list. It signs in a
 
 **Try it:** the [web demo](https://hbproductionofficial.github.io/Vitrine/), or the APK on the [Releases](https://github.com/HBProductionOfficial/Vitrine/releases) page (`vitrine-arm64-v8a.apk` fits almost any recent phone). The demo account is `emilys` / `emilyspass`, and the login screen can fill it in for you.
 
+<p align="center">
+  <img src="docs/screenshots/shop.png" width="200" alt="Shop grid with search, categories and a quick add-to-cart button on each product">
+  <img src="docs/screenshots/product.png" width="200" alt="Product page with photo, price, stock and an amount picker">
+  <img src="docs/screenshots/cart.png" width="200" alt="Cart with quantity steppers, discount and total">
+  <img src="docs/screenshots/devices.png" width="200" alt="Device list with one row open showing live readings, and a dot on a device that changed">
+</p>
+
 ## Background
 
 I started this as a take-home assignment for a Flutter job in November 2025. The brief asked for biometric login and a device list from restful-api.dev with a few specific behaviours:
