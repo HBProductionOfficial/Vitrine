@@ -24,6 +24,10 @@ I started this as a take-home assignment for a Flutter job in November 2025. The
 
 In October 2026 I rebuilt it from an empty project and kept going. The login is real now, and there's a shop, a cart and settings in three languages. The device list still behaves the way the brief describes.
 
+## About the commit dates
+
+The commit dates in this repository, 8 to 21 September 2025, are simulated and don't record when the work was done. The commits were made in October 2026. This copy keeps their order, messages and contents, re-dates them across two weeks for demonstration, and the original history is kept separately.
+
 ## Features
 
 - **Sign in** uses DummyJSON tokens, which refresh on their own when they expire. You can stay signed in, or unlock with a fingerprint or face after one password sign-in.
