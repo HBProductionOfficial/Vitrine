@@ -230,14 +230,25 @@ class _Details extends ConsumerWidget {
     final categoryName =
         ref.watch(categoriesProvider).value?.where((c) => c.slug == product.category).firstOrNull?.name ??
         product.category;
-    final kicker = [?product.brand, if (categoryName.isNotEmpty) categoryName].join('  ·  ');
     final mine = ref.watch(myReviewsProvider.select((all) => all[product.id]));
     final reviewCount = product.reviews.length + (mine == null ? 0 : 1);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (kicker.isNotEmpty) Text(kicker, style: theme.textTheme.bodySmall),
+        Wrap(
+          spacing: Insets.sm,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            if (product.brand != null) Text(product.brand!, style: theme.textTheme.bodySmall),
+            if (categoryName.isNotEmpty)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(color: p.surfaceMuted, borderRadius: BorderRadius.circular(6)),
+                child: Text(categoryName, style: theme.textTheme.labelSmall),
+              ),
+          ],
+        ),
         const SizedBox(height: Insets.xs),
         Text(product.title, style: theme.textTheme.headlineSmall),
         const SizedBox(height: Insets.sm),
@@ -246,8 +257,10 @@ class _Details extends ConsumerWidget {
             _Stars(rating: product.rating),
             const SizedBox(width: 6),
             Text(product.rating.toStringAsFixed(1), style: theme.textTheme.labelMedium),
-            if (!loading || reviewCount > 0)
-              Text('  ·  ${l10n.reviewsCount(reviewCount)}', style: theme.textTheme.bodySmall),
+            if (!loading || reviewCount > 0) ...[
+              const SizedBox(width: Insets.md),
+              Text(l10n.reviewsCount(reviewCount), style: theme.textTheme.bodySmall),
+            ],
           ],
         ),
         const SizedBox(height: Insets.lg),

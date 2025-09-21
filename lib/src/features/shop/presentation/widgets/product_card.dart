@@ -142,15 +142,17 @@ class RatingLine extends StatelessWidget {
             ],
           ),
         ),
-        if (stockNote != null)
+        if (stockNote != null) ...[
+          const SizedBox(width: Insets.sm),
           Flexible(
             child: Text(
-              '  ·  $stockNote',
+              stockNote,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: small?.copyWith(color: p.danger),
             ),
           ),
+        ],
       ],
     );
   }
